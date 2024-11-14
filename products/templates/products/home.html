@@ -1,4 +1,5 @@
 {% extends 'base.html' %}
+{% load static %}
 
 {% block title %}Inicio - E-Commerce{% endblock %}
 
@@ -13,14 +14,21 @@
     <div class="productos">
         {% for producto in productos_destacados %}
             <div class="producto">
-                <img src="{{ producto.imagen.url }}" alt="{{ producto.nombre }}" class="producto-imagen">
+                {% if producto.imagen %}
+                    <img src="{{ producto.imagen.url }}" alt="{{ producto.nombre }}" class="producto-imagen">
+                {% else %}
+                    <img src="{% static '/images/default-product.jpg' %}" alt="{{ producto.nombre }}" class="producto-imagen">
+                {% endif %}
                 <div class="producto-info">
-                    <h3>{{ producto.nombre }}</h3>
+                    <h3><a href="{% url 'product_detail' producto.id %}" class="text-decoration-none text-dark">{{ producto.nombre }}</a></h3>
                     <p class="text-muted">{{ producto.descripcion|truncatechars:100 }}</p>
                     <p class="producto-precio">€{{ producto.precio }}</p>
-                    <button class="btn btn-primary btn-custom w-100">
-                        <i class="fas fa-shopping-cart me-2"></i>Añadir al carrito
-                    </button>
+                    <form action="{% url 'add_to_cart' producto.id %}" method="POST">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-primary btn-custom w-100">
+                            <i class="fas fa-shopping-cart me-2"></i>Añadir al carrito
+                        </button>
+                    </form>
                 </div>
             </div>
         {% empty %}
@@ -30,4 +38,27 @@
         {% endfor %}
     </div>
 </section>
+
+<div class="position-fixed top-50 start-50 translate-middle" style="z-index: 1050">
+    {% if messages %}
+        {% for message in messages %}
+            <div class="alert alert-success fade show text-center" role="alert" id="alertMessage">
+                <i class="fas fa-check-circle me-2"></i>{{ message }}
+            </div>
+        {% endfor %}
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        var alertMessage = document.getElementById('alertMessage');
+        if (alertMessage) {
+            setTimeout(function() {
+                alertMessage.remove();
+            }, 2000);
+        }
+    });
+</script>
 {% endblock %}

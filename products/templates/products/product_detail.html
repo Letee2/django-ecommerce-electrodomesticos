@@ -1,0 +1,36 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ product.nombre }} - E-Commerce{% endblock %}
+
+{% block content %}
+<div class="container product-detail">
+    <div class="row">
+        <div class="col-md-6">
+            <div class="product-image">
+                {% if product.imagen %}
+                    <img src="{{ product.imagen.url }}" alt="{{ product.nombre }}" class="img-fluid rounded">
+                {% else %}
+                    <img src="{% static '/images/default-product.jpg' %}" alt="{{ product.nombre }}" class="img-fluid rounded">
+                {% endif %}
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="product-info">
+                <h1>{{ product.nombre }}</h1>
+                <p class="lead">€{{ product.precio }}</p>
+                <div class="mb-4">
+                    <h4>Descripción</h4>
+                    <p>{{ product.descripcion }}</p>
+                </div>
+                <form action="{% url 'add_to_cart' product.id %}" method="POST">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-primary btn-lg scale-in">
+                        <i class="fas fa-shopping-cart me-2"></i>Añadir al carrito
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

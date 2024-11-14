@@ -1,0 +1,117 @@
+{% extends 'base.html' %}
+
+{% block title %}Mi Perfil - E-Commerce{% endblock %}
+
+{% block content %}
+<div class="container page-transition">
+    <div class="profile-container">
+        <div class="profile-header">
+            <i class="fas fa-user-circle fa-3x mb-3"></i>
+            <h2>Mi Perfil</h2>
+        </div>
+        <div class="profile-content">
+            <form method="POST">
+                {% csrf_token %}
+                
+                <!-- Información Personal -->
+                <div class="profile-section mb-4">
+                    <h4><i class="fas fa-user me-2"></i>Información Personal</h4>
+                    <div class="row g-3">
+                        {% for field in user_form %}
+                            <div class="col-md-6">
+                                <div class="form-group h-100">
+                                    <label class="form-label">{{ field.label }}</label>
+                                    {{ field }}
+                                    {% if field.errors %}
+                                        {% for error in field.errors %}
+                                            <div class="invalid-feedback d-block">{{ error }}</div>
+                                        {% endfor %}
+                                    {% endif %}
+                                </div>
+                            </div>
+                        {% endfor %}
+                        <div class="col-md-6">
+                            <div class="form-group h-100">
+                                <label class="form-label">Teléfono</label>
+                                <input type="tel" name="telefono" class="form-control" value="{{ user.userprofile.telefono }}">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Direcciones -->
+                <div class="row g-4">
+                    <div class="col-md-6">
+                        <div class="profile-section h-100">
+                            <h4><i class="fas fa-shipping-fast me-2"></i>Dirección de Envío</h4>
+                            <div class="address-fields">
+                                {% for field in profile_form %}
+                                    {% if 'envio' in field.name %}
+                                        <div class="form-group mb-3">
+                                            <label class="form-label">{{ field.label }}</label>
+                                            {{ field }}
+                                        </div>
+                                    {% endif %}
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="profile-section h-100">
+                            <h4><i class="fas fa-file-invoice me-2"></i>Dirección de Facturación</h4>
+                            <div class="address-fields">
+                                {% for field in profile_form %}
+                                    {% if 'facturacion' in field.name and 'codigo_postal' not in field.name %}
+                                        <div class="form-group mb-3">
+                                            <label class="form-label">{{ field.label }}</label>
+                                            {{ field }}
+                                        </div>
+                                    {% endif %}
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <button type="submit" class="btn btn-primary w-100 mt-4">
+                    <i class="fas fa-save me-2"></i>Guardar Cambios
+                </button>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const sameAddressCheckbox = document.getElementById('sameAddress');
+    const shippingFields = document.querySelectorAll('[name*="envio"]');
+    const billingFields = document.querySelectorAll('[name*="facturacion"]');
+    const billingSection = document.querySelector('.address-fields:last-child');
+
+    function syncAddresses() {
+        if (sameAddressCheckbox.checked) {
+            shippingFields.forEach((field, index) => {
+                billingFields[index].value = field.value;
+                billingFields[index].disabled = true;
+            });
+            billingSection.style.opacity = '0.7';
+        } else {
+            billingFields.forEach(field => {
+                field.disabled = false;
+            });
+            billingSection.style.opacity = '1';
+        }
+    }
+
+    sameAddressCheckbox.addEventListener('change', syncAddresses);
+    
+    shippingFields.forEach((field, index) => {
+        field.addEventListener('input', () => {
+            if (sameAddressCheckbox.checked) {
+                billingFields[index].value = field.value;
+            }
+        });
+    });
+});
+</script>
+{% endblock %} 

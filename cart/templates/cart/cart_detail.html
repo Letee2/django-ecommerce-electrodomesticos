@@ -1,0 +1,105 @@
+{% extends 'base.html' %}
+
+{% block title %}Carrito - E-Commerce{% endblock %}
+
+{% block extra_head %}
+<script src="https://js.stripe.com/v3/"></script>
+{% endblock %}
+
+{% block content %}
+<div class="container cart-container">
+    <h2 class="mb-4">Tu Carrito</h2>
+    {% if cart_items %}
+        <div class="table-responsive">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Producto</th>
+                        <th>Precio</th>
+                        <th>Cantidad</th>
+                        <th>Total</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item in cart_items %}
+                        <tr>
+                            <td>{{ item.product.nombre }}</td>
+                            <td>€{{ item.product.precio }}</td>
+                            <td>{{ item.quantity }}</td>
+                            <td>€{{ item.get_total }}</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+                <tfoot>
+                    <tr>
+                        <td colspan="3" class="text-end"><strong>Total:</strong></td>
+                        <td><strong>€{{ total }}</strong></td>
+                    </tr>
+                </tfoot>
+            </table>
+        </div>
+        <div class="mt-4">
+            <h3>Método de Pago</h3>
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="card mb-3">
+                        <div class="card-body">
+                            <h5>Contrareembolso</h5>
+                            <p>Paga cuando recibas tu pedido</p>
+                            <form action="{% url 'checkout_cod' %}" method="POST">
+                                {% csrf_token %}
+                                <button type="submit" class="btn btn-primary">Pagar al recibir</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="card">
+                        <div class="card-body">
+                            <h5>Pago con tarjeta</h5>
+                            <p>Pago seguro con Stripe</p>
+                            <button type="button" class="btn btn-success" id="checkout-button">
+                                <i class="fas fa-credit-card me-2"></i>Pagar con tarjeta
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    {% else %}
+        <p>Tu carrito está vacío.</p>
+    {% endif %}
+</div>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        var stripe = Stripe('pk_test_51QKwPAHrUl7MjtOJ3MtMqx4yEmpeGeoGfGUX6JGwW2sTpA3SzonUgHXEVwCgaFi7rWOIhEpysInHi7Th9EHR3XzH00Vn9yD154');
+        var checkoutButton = document.getElementById('checkout-button');
+        
+        checkoutButton.addEventListener('click', function(e) {
+            e.preventDefault();
+            checkoutButton.disabled = true;
+            checkoutButton.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Procesando...';
+
+            fetch('{% url "create_checkout_session" %}', {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': '{{ csrf_token }}'
+                }
+            })
+            .then(response => response.json())
+            .then(session => {
+                if (session.error) {
+                    throw new Error(session.error);
+                }
+                return stripe.redirectToCheckout({ sessionId: session.id });
+            })
+            .catch(function(error) {
+                console.error('Error:', error);
+                checkoutButton.disabled = false;
+                checkoutButton.innerHTML = '<i class="fas fa-credit-card me-2"></i>Pagar con tarjeta';
+                alert('Error al procesar el pago: ' + error.message);
+            });
+        });
+    });
+</script>
+{% endblock %}

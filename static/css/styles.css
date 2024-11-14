@@ -1,40 +1,376 @@
 /* Variables */
 :root {
-    --primary-color: #0d6efd;
-    --secondary-color: #6c757d;
-    --success-color: #198754;
-    --bg-light: #f8f9fa;
+    --primary-color: #4f46e5;
+    --primary-hover: #4338ca;
+    --secondary-color: #6b7280;
+    --success-color: #059669;
+    --bg-light: #f9fafb;
+    --card-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
 }
 
-/* Estilos generales */
+/* Animaciones Globales */
+@keyframes fadeSlideIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes fadeSlideInRight {
+    from {
+        opacity: 0;
+        transform: translateX(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+@keyframes scaleIn {
+    from {
+        opacity: 0;
+        transform: scale(0.95);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+@keyframes slideFromBottom {
+    from {
+        opacity: 0;
+        transform: translateY(50px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Clases de animación */
+.fade-slide-in {
+    animation: fadeSlideIn 0.5s ease-out;
+}
+
+.fade-slide-right {
+    animation: fadeSlideInRight 0.5s ease-out;
+}
+
+.scale-in {
+    animation: scaleIn 0.5s ease-out;
+}
+
+.slide-from-bottom {
+    animation: slideFromBottom 0.5s ease-out;
+}
+
+/* Estilos Base */
 body {
-    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    background-color: var(--bg-light);
     min-height: 100vh;
-    display: flex;
-    flex-direction: column;
 }
 
-main {
-    flex: 1;
+/* Cards Mejoradas */
+.card {
+    border: none;
+    box-shadow: var(--card-shadow);
+    border-radius: 1rem;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
 
-/* Navbar personalizado */
-.navbar-brand {
-    font-size: 1.5rem;
-    font-weight: bold;
+.card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
 }
 
-/* Cards de productos */
+.card-header {
+    background: linear-gradient(135deg, var(--primary-color), var(--primary-hover));
+    color: white;
+    border-radius: 1rem 1rem 0 0 !important;
+    padding: 1.5rem;
+}
+
+/* Formularios Modernos */
+.form-control {
+    border: 2px solid #e5e7eb;
+    border-radius: 0.75rem;
+    padding: 0.75rem 1rem;
+    transition: all 0.3s ease;
+}
+
+.form-control:focus {
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 4px rgba(79, 70, 229, 0.1);
+}
+
+.form-label {
+    font-weight: 500;
+    color: var(--secondary-color);
+}
+
+/* Botones Modernos */
+.btn {
+    border-radius: 0.75rem;
+    padding: 0.75rem 1.5rem;
+    font-weight: 500;
+    transition: all 0.3s ease;
+}
+
+.btn-primary {
+    background: linear-gradient(135deg, var(--primary-color), var(--primary-hover));
+    border: none;
+}
+
+.btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(79, 70, 229, 0.2);
+}
+
+/* Perfil de Usuario */
+.profile-section {
+    background: white;
+    border-radius: 1rem;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    padding: 1.5rem;
+    margin-bottom: 1rem;
+    transition: all 0.3s ease;
+}
+
+.profile-section:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 12px -2px rgba(0, 0, 0, 0.15);
+}
+
+.profile-section h4 {
+    color: var(--primary-color);
+    margin-bottom: 1.5rem;
+    font-weight: 600;
+}
+
+/* Product Detail */
+.product-detail {
+    animation: fadeScale 0.4s ease-out;
+}
+
+@keyframes fadeScale {
+    from {
+        opacity: 0;
+        transform: scale(0.95);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+/* Cart Styles */
+.cart-container {
+    animation: slideInRight 0.4s ease-out;
+}
+
+@keyframes slideInRight {
+    from {
+        opacity: 0;
+        transform: translateX(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+/* Alert Messages */
+.alert {
+    border: none;
+    border-radius: 1rem;
+    padding: 1rem 1.5rem;
+    box-shadow: var(--card-shadow);
+    animation: slideInDown 0.4s ease-out;
+}
+
+@keyframes slideInDown {
+    from {
+        opacity: 0;
+        transform: translateY(-30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Grid de Productos */
 .productos {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
     gap: 2rem;
-    padding: 1rem 0;
+    padding: 2rem 0;
 }
 
 .producto {
     background: white;
-    border-radius: 10px;
-    box-shadow: 0 2px 15px rgba(0, 0, 0, 0.1);
-    padding: 15px;
+    border-radius: 1rem;
+    box-shadow: var(--card-shadow);
+    overflow: hidden;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.producto:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+}
+
+.producto-imagen {
+    width: 100%;
+    height: 250px;
+    object-fit: cover;
+}
+
+.producto-info {
+    padding: 1.5rem;
+}
+
+/* Estilos del Perfil */
+.profile-container {
+    max-width: 800px;
+    margin: 2rem auto;
+    background: white;
+    border-radius: 1rem;
+    box-shadow: var(--card-shadow);
+    overflow: hidden;
+}
+
+.profile-header {
+    background: linear-gradient(135deg, var(--primary-color), var(--primary-hover));
+    color: white;
+    padding: 2rem;
+    text-align: center;
+}
+
+.profile-content {
+    padding: 2rem;
+}
+
+/* Hero Section */
+.hero-section {
+    animation: fadeSlideIn 0.8s ease-out;
+}
+
+/* Productos Grid */
+.productos {
+    animation: fadeSlideIn 0.6s ease-out;
+}
+
+.producto {
+    animation: scaleIn 0.5s ease-out;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+/* Detalles del Producto */
+.product-image {
+    animation: fadeSlideInRight 0.6s ease-out;
+}
+
+.product-info {
+    animation: fadeSlideIn 0.6s ease-out;
+}
+
+/* Carrito */
+.cart-container {
+    animation: fadeSlideIn 0.5s ease-out;
+}
+
+.cart-item {
+    animation: slideFromBottom 0.5s ease-out;
+    animation-fill-mode: both;
+}
+
+/* Perfil */
+.profile-container {
+    animation: scaleIn 0.5s ease-out;
+}
+
+.profile-section {
+    animation: fadeSlideIn 0.5s ease-out;
+    animation-delay: 0.2s;
+    animation-fill-mode: both;
+}
+
+.form-check-input:checked {
+    background-color: var(--primary-color);
+    border-color: var(--primary-color);
+}
+
+.form-check-input {
+    cursor: pointer;
+}
+
+.form-check-label {
+    cursor: pointer;
+    user-select: none;
+}
+
+.address-fields {
+    transition: opacity 0.3s ease;
+}
+
+.form-check {
+    background: var(--bg-light);
+    padding: 1rem;
+    border-radius: 0.5rem;
+    margin: 1rem 0;
+    transition: background-color 0.3s ease;
+}
+
+.form-check:hover {
+    background: #e9ecef;
+}
+
+.form-control {
+    border-radius: 0.5rem;
+    padding: 0.75rem;
+    transition: all 0.3s ease;
+}
+
+.form-control:focus {
+    box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.15);
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
+
+.form-control {
+    flex: 1;
+    height: 45px !important;
+}
+
+.profile-section {
+    display: flex;
+    flex-direction: column;
+}
+
+.address-fields {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.row.g-4 {
+    margin-left: 0;
+    margin-right: 0;
+}
+
+.profile-section .form-group:last-child {
+    margin-bottom: 0 !important;
 }
