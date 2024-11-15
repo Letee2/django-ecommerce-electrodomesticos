@@ -1,0 +1,252 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/admin_panel.css' %}">
+<style>
+    .table th {
+        font-weight: 600;
+        text-transform: uppercase;
+        font-size: 0.85rem;
+        letter-spacing: 0.5px;
+    }
+    
+    .form-control:focus {
+        border-color: #0d6efd;
+        box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.15);
+    }
+    
+    .modal-content {
+        border: none;
+        border-radius: 1rem;
+    }
+    
+    .modal-dialog {
+        margin-top: 4rem;
+    }
+    
+    .form-check {
+        padding-left: 0;
+        margin-left: 1rem;
+    }
+    
+    .form-check-input {
+        float: none;
+        margin-left: 0;
+    }
+    
+    .form-switch {
+        padding-left: 2.5em;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="fw-bold">Panel de Administración</h2>
+        <button class="btn btn-primary rounded-pill shadow-sm" data-bs-toggle="modal" data-bs-target="#addProductModal">
+            <i class="fas fa-plus me-2"></i>Añadir Producto
+        </button>
+    </div>
+
+    {% if messages %}
+        {% for message in messages %}
+            <div class="alert alert-{{ message.tags }} alert-dismissible fade show shadow-sm">
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+        {% endfor %}
+    {% endif %}
+
+    <div class="card shadow-sm">
+        <div class="table-responsive">
+            <table class="table table-hover mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th class="px-4">Imagen</th>
+                        <th>Nombre</th>
+                        <th>Precio</th>
+                        <th>Stock</th>
+                        <th>Destacado</th>
+                        <th>En Promoción</th>
+                        <th class="text-end pe-4">Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for producto in productos %}
+                    <tr>
+                        <td class="px-4">
+                            {% if producto.imagen %}
+                                <img src="{{ producto.imagen.url }}" alt="{{ producto.nombre }}" 
+                                     class="rounded-3" style="width: 50px; height: 50px; object-fit: cover;">
+                            {% else %}
+                                <span class="text-muted">Sin imagen</span>
+                            {% endif %}
+                        </td>
+                        <td class="align-middle">{{ producto.nombre }}</td>
+                        <td class="align-middle">€{{ producto.precio }}</td>
+                        <td class="align-middle">{{ producto.stock }}</td>
+                        <td class="align-middle">
+                            <span class="badge {% if producto.destacado %}bg-success{% else %}bg-secondary{% endif %} rounded-pill">
+                                {{ producto.destacado|yesno:"Sí,No" }}
+                            </span>
+                        </td>
+                        <td class="align-middle">
+                            <span class="badge {% if producto.en_promocion %}bg-warning{% else %}bg-secondary{% endif %} rounded-pill">
+                                {{ producto.en_promocion|yesno:"Sí,No" }}
+                            </span>
+                        </td>
+                        <td class="text-end pe-4">
+                            <button class="btn btn-sm btn-outline-primary rounded-pill me-2" data-bs-toggle="modal" 
+                                    data-bs-target="#editModal{{ producto.id }}">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                            <button class="btn btn-sm btn-outline-danger rounded-pill" onclick="confirmarEliminar({{ producto.id }})">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- Modal para añadir/editar producto -->
+<div class="modal fade" id="addProductModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header border-0">
+                <h5 class="modal-title fw-bold">Añadir Producto</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form method="post" action="{% url 'add_product' %}" enctype="multipart/form-data">
+                {% csrf_token %}
+                <div class="modal-body px-4">
+                    <div class="mb-4">
+                        <label class="form-label fw-semibold">Nombre</label>
+                        <input type="text" class="form-control form-control-lg" name="nombre" required>
+                    </div>
+                    <div class="mb-4">
+                        <label class="form-label fw-semibold">Descripción</label>
+                        <textarea class="form-control" name="descripcion" rows="3" required 
+                                  style="min-height: 100px; resize: vertical;"></textarea>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Precio</label>
+                        <input type="number" step="0.01" class="form-control" name="precio" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Imagen</label>
+                        <input type="file" class="form-control" name="imagen">
+                    </div>
+                    <div class="mb-3 d-flex justify-content-between align-items-center">
+                        <label class="form-check-label" for="destacado">Destacado</label>
+                        <div class="form-check">
+                            <input type="checkbox" class="form-check-input" name="destacado" id="destacado">
+                        </div>
+                    </div>
+                    <div class="mb-3 d-flex justify-content-between align-items-center">
+                        <label class="form-check-label" for="en_promocion">En Promoción</label>
+                        <div class="form-check">
+                            <input type="checkbox" class="form-check-input" name="en_promocion" id="en_promocion">
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Descuento (%)</label>
+                        <input type="number" class="form-control" name="descuento" value="0">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Stock</label>
+                        <input type="number" class="form-control" name="stock" value="0" min="0" required>
+                    </div>
+                </div>
+                <div class="modal-footer border-0">
+                    <button type="button" class="btn btn-light rounded-pill px-4" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-primary rounded-pill px-4">Guardar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Modales para editar productos -->
+{% for producto in productos %}
+<div class="modal fade" id="editModal{{ producto.id }}" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header border-0">
+                <h5 class="modal-title fw-bold">Editar Producto: {{ producto.nombre }}</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form method="post" action="{% url 'edit_product' producto.id %}" enctype="multipart/form-data">
+                {% csrf_token %}
+                <div class="modal-body px-4">
+                    <div class="mb-4">
+                        <label class="form-label fw-semibold">Nombre</label>
+                        <input type="text" class="form-control form-control-lg" name="nombre" value="{{ producto.nombre }}" required>
+                    </div>
+                    <div class="mb-4">
+                        <label class="form-label fw-semibold">Descripción</label>
+                        <textarea class="form-control" name="descripcion" rows="3" required 
+                                  style="min-height: 100px; resize: vertical;">{{ producto.descripcion }}</textarea>
+                    </div>
+                    <div class="row mb-4">
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">Precio (€)</label>
+                            <input type="number" step="0.01" class="form-control form-control-lg" name="precio" value="{{ producto.precio }}" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">Descuento (%)</label>
+                            <input type="number" class="form-control form-control-lg" name="descuento" value="{{ producto.descuento }}">
+                        </div>
+                    </div>
+                    <div class="mb-4">
+                        <label class="form-label fw-semibold">Imagen</label>
+                        <input type="file" class="form-control form-control-lg custom-file-input" name="imagen">
+                        {% if producto.imagen %}
+                            <div class="mt-2">
+                                <img src="{{ producto.imagen.url }}" alt="" class="img-preview">
+                            </div>
+                        {% endif %}
+                    </div>
+                    <div class="row mb-4">
+                        <div class="col-md-6">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <label class="form-check-label fw-semibold">Destacado</label>
+                                <div class="form-check form-switch">
+                                    <input type="checkbox" class="form-check-input" name="destacado" {% if producto.destacado %}checked{% endif %}>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <label class="form-check-label fw-semibold">En Promoción</label>
+                                <div class="form-check form-switch">
+                                    <input type="checkbox" class="form-check-input" name="en_promocion" {% if producto.en_promocion %}checked{% endif %}>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Stock</label>
+                        <input type="number" class="form-control" name="stock" value="{{ producto.stock }}" min="0" required>
+                    </div>
+                </div>
+                <div class="modal-footer border-0">
+                    <button type="button" class="btn btn-light rounded-pill px-4" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-primary rounded-pill px-4">Guardar cambios</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endfor %}
+
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'js/admin_panel.js' %}"></script>
+{% endblock %} 

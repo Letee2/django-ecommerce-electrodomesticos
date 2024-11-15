@@ -1,0 +1,63 @@
+/* Contenedor del perfil */
+.profile-container {
+    max-width: 1200px;
+    margin: 2rem auto;
+    padding: 0 1rem;
+}
+
+/* Secciones de dirección */
+.profile-section {
+    background-color: #fff;
+    padding: 1.25rem;
+    height: 100%;
+}
+
+/* Campos de formulario */
+.form-group {
+    margin-bottom: 0.75rem;
+}
+
+.form-control {
+    height: 32px !important;
+    padding: 0.375rem 0.75rem;
+    font-size: 0.9rem;
+}
+
+/* Campos de dirección */
+.address-fields {
+    display: grid;
+    gap: 0.75rem;
+}
+
+/* Campos de texto multilínea */
+textarea.form-control {
+    height: 60px !important;
+    min-height: 60px;
+    resize: none;
+}
+
+/* Checkbox de misma dirección */
+.form-check {
+    background-color: #f8f9fa;
+    padding: 0.5rem 0.75rem;
+    border-radius: 0.25rem;
+    margin-bottom: 0.75rem;
+}
+
+/* Ajustes específicos para código postal */
+input[name*="codigo_postal"] {
+    max-width: 100px;
+}
+
+/* Etiquetas de los campos */
+.form-label {
+    font-size: 0.85rem;
+    margin-bottom: 0.25rem;
+}
+
+/* Ajustes específicos para las direcciones */
+.profile-section h4 {
+    font-size: 1.1rem;
+    margin-bottom: 1.25rem;
+}
+ 

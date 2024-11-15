@@ -1,0 +1,78 @@
+.field-mostrar_imagen img {
+    border: 1px solid #ddd;
+    padding: 2px;
+    background: #fff;
+}
+
+.form-row {
+    padding: 1rem;
+    margin-bottom: 1rem;
+    border-bottom: 1px solid #eee;
+}
+
+.inline-group {
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    padding: 1rem;
+    margin-bottom: 1rem;
+}
+
+.field-precio_promocion {
+    background-color: #f8f9fa;
+    padding: 0.5rem;
+    border-radius: 4px;
+}
+
+.field-imagen input[type="file"] {
+    padding: 1rem;
+    border: 2px dashed #ddd;
+    border-radius: 4px;
+    width: 100%;
+    margin-top: 0.5rem;
+}
+
+.field-destacado, .field-en_promocion {
+    margin: 1rem 0;
+}
+
+/* Estilos para la previsualización de imágenes */
+.field-preview_imagen {
+    margin-top: 10px;
+}
+
+.field-preview_imagen img {
+    max-width: 200px;
+    height: auto;
+    border: 1px solid #ddd;
+    padding: 3px;
+    background: white;
+}
+
+/* Estilos para el campo de subida de imagen */
+.field-imagen {
+    margin-bottom: 20px;
+}
+
+.field-imagen input[type="file"] {
+    padding: 10px;
+    border: 2px dashed #ddd;
+    border-radius: 4px;
+    width: 100%;
+    margin-top: 5px;
+}
+
+/* Estilos para los campos de promoción */
+.field-precio_promocion {
+    background-color: #f8f9fa;
+    padding: 10px;
+    border-radius: 4px;
+    margin-top: 10px;
+}
+
+/* Estilos para los botones de acción */
+.submit-row {
+    background: #f8f9fa;
+    padding: 15px;
+    border-radius: 4px;
+    margin-top: 20px;
+} 

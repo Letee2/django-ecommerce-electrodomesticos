@@ -1,11 +1,29 @@
 {% extends 'base.html' %}
+{% load static %}
 
-{% block title %}Mi Perfil - E-Commerce{% endblock %}
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/profile.css' %}">
+<style>
+.form-check {
+    padding-left: 0;
+    margin-left: 1rem;
+}
+
+.form-check-input {
+    float: none;
+    margin-left: 0;
+}
+
+.form-switch {
+    padding-left: 2.5em;
+}
+</style>
+{% endblock %}
 
 {% block content %}
 <div class="container page-transition">
     <div class="profile-container">
-        <div class="profile-header">
+        <div class="profile-header text-center mb-4">
             <i class="fas fa-user-circle fa-3x mb-3"></i>
             <h2>Mi Perfil</h2>
         </div>
@@ -14,12 +32,12 @@
                 {% csrf_token %}
                 
                 <!-- Información Personal -->
-                <div class="profile-section mb-4">
-                    <h4><i class="fas fa-user me-2"></i>Información Personal</h4>
+                <div class="profile-section mb-4 p-4 border rounded shadow-sm">
+                    <h4 class="mb-4"><i class="fas fa-user me-2"></i>Información Personal</h4>
                     <div class="row g-3">
                         {% for field in user_form %}
-                            <div class="col-md-6">
-                                <div class="form-group h-100">
+                            <div class="col-md-4">
+                                <div class="form-group">
                                     <label class="form-label">{{ field.label }}</label>
                                     {{ field }}
                                     {% if field.errors %}
@@ -30,10 +48,10 @@
                                 </div>
                             </div>
                         {% endfor %}
-                        <div class="col-md-6">
-                            <div class="form-group h-100">
+                        <div class="col-md-4">
+                            <div class="form-group">
                                 <label class="form-label">Teléfono</label>
-                                <input type="tel" name="telefono" class="form-control" value="{{ user.userprofile.telefono }}">
+                                <input type="tel" name="telefono" class="form-control" value="{{ user.profile.telefono }}">
                             </div>
                         </div>
                     </div>
@@ -41,9 +59,10 @@
 
                 <!-- Direcciones -->
                 <div class="row g-4">
+                    <!-- Dirección de Envío -->
                     <div class="col-md-6">
-                        <div class="profile-section h-100">
-                            <h4><i class="fas fa-shipping-fast me-2"></i>Dirección de Envío</h4>
+                        <div class="profile-section h-100 p-4 border rounded shadow-sm">
+                            <h4 class="mb-4"><i class="fas fa-shipping-fast me-2"></i>Dirección de Envío</h4>
                             <div class="address-fields">
                                 {% for field in profile_form %}
                                     {% if 'envio' in field.name %}
@@ -56,12 +75,20 @@
                             </div>
                         </div>
                     </div>
+
+                    <!-- Dirección de Facturación -->
                     <div class="col-md-6">
-                        <div class="profile-section h-100">
-                            <h4><i class="fas fa-file-invoice me-2"></i>Dirección de Facturación</h4>
-                            <div class="address-fields">
+                        <div class="profile-section h-100 p-4 border rounded shadow-sm">
+                            <h4 class="mb-4"><i class="fas fa-file-invoice me-2"></i>Dirección de Facturación</h4>
+                            <div class="form-check mb-4">
+                                {{ profile_form.misma_direccion }}
+                                <label class="form-check-label" for="{{ profile_form.misma_direccion.id_for_label }}">
+                                    {{ profile_form.misma_direccion.label }}
+                                </label>
+                            </div>
+                            <div class="address-fields" id="facturacion-fields">
                                 {% for field in profile_form %}
-                                    {% if 'facturacion' in field.name and 'codigo_postal' not in field.name %}
+                                    {% if 'facturacion' in field.name %}
                                         <div class="form-group mb-3">
                                             <label class="form-label">{{ field.label }}</label>
                                             {{ field }}
@@ -73,7 +100,7 @@
                     </div>
                 </div>
 
-                <button type="submit" class="btn btn-primary w-100 mt-4">
+                <button type="submit" class="btn btn-primary w-100 mt-4 py-2">
                     <i class="fas fa-save me-2"></i>Guardar Cambios
                 </button>
             </form>
@@ -83,32 +110,36 @@
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    const sameAddressCheckbox = document.getElementById('sameAddress');
-    const shippingFields = document.querySelectorAll('[name*="envio"]');
-    const billingFields = document.querySelectorAll('[name*="facturacion"]');
-    const billingSection = document.querySelector('.address-fields:last-child');
-
-    function syncAddresses() {
-        if (sameAddressCheckbox.checked) {
-            shippingFields.forEach((field, index) => {
-                billingFields[index].value = field.value;
-                billingFields[index].disabled = true;
-            });
-            billingSection.style.opacity = '0.7';
-        } else {
-            billingFields.forEach(field => {
-                field.disabled = false;
-            });
-            billingSection.style.opacity = '1';
-        }
-    }
-
-    sameAddressCheckbox.addEventListener('change', syncAddresses);
+    const mismaDireccionCheckbox = document.getElementById('{{ profile_form.misma_direccion.id_for_label }}');
+    const facturacionFields = document.getElementById('facturacion-fields');
     
-    shippingFields.forEach((field, index) => {
-        field.addEventListener('input', () => {
-            if (sameAddressCheckbox.checked) {
-                billingFields[index].value = field.value;
+    function updateFacturacionFields() {
+        const isChecked = mismaDireccionCheckbox.checked;
+        const envioInputs = document.querySelectorAll('[name*="envio"]');
+        const facturacionInputs = document.querySelectorAll('[name*="facturacion"]');
+        
+        facturacionFields.style.opacity = isChecked ? '0.5' : '1';
+        
+        facturacionInputs.forEach((input, index) => {
+            input.disabled = isChecked;
+            if (isChecked) {
+                input.value = envioInputs[index].value;
+            }
+        });
+    }
+    
+    mismaDireccionCheckbox.addEventListener('change', updateFacturacionFields);
+    updateFacturacionFields();
+
+    // Sincronizar campos de envío con facturación cuando cambian
+    const envioInputs = document.querySelectorAll('[name*="envio"]');
+    envioInputs.forEach(input => {
+        input.addEventListener('input', function() {
+            if (mismaDireccionCheckbox.checked) {
+                const facturacionInput = document.querySelector(`[name="${input.name.replace('envio', 'facturacion')}"]`);
+                if (facturacionInput) {
+                    facturacionInput.value = input.value;
+                }
             }
         });
     });

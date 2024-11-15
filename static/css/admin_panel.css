@@ -1,0 +1,52 @@
+/* Estilos para los modales */
+.modal-content {
+    border: none;
+    border-radius: 1rem;
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+}
+
+.modal-dialog {
+    margin-top: 2rem;
+}
+
+/* Estilos para los campos de formulario */
+.custom-textarea {
+    min-height: 200px;
+    resize: vertical;
+    padding: 1rem;
+    font-size: 1rem;
+    line-height: 1.6;
+    border-radius: 0.5rem;
+}
+
+.custom-file-input {
+    padding: 1rem;
+    border: 2px dashed #dee2e6;
+    background-color: #f8f9fa;
+}
+
+.img-preview {
+    max-width: 200px;
+    border-radius: 0.5rem;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* Estilos para los switches */
+.form-check.form-switch {
+    padding-left: 2.5rem;
+}
+
+.form-check-input {
+    cursor: pointer;
+    width: 3rem;
+}
+
+/* Estilos para los inputs */
+.form-control-lg {
+    border-radius: 0.5rem;
+}
+
+.form-control:focus {
+    border-color: #0d6efd;
+    box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.15);
+} 

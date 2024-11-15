@@ -1177,3 +1177,9 @@ a.deletelink:focus, a.deletelink:hover {
     color: var(--body-fg);
     background-color: var(--body-bg);
 }
+
+.catalog-container {
+    position: relative;
+    display: flex;
+    gap: 20px;
+}

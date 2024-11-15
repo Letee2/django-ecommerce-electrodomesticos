@@ -1,0 +1,344 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load product_filters %}
+
+{% block title %}Catálogo - E-Commerce{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <!-- Cabecera del catálogo -->
+    <div class="catalog-header mb-5 text-center">
+        <h1 class="display-4 mb-3">Catálogo de Productos</h1>
+        <p class="lead text-muted">Encuentra el electrodoméstico perfecto para tu hogar</p>
+        
+        <!-- Barra de búsqueda -->
+        <div class="row justify-content-center mt-4">
+            <div class="col-md-6">
+                <form method="get" class="d-flex">
+                    <input type="search" 
+                           name="busqueda" 
+                           class="form-control form-control-lg me-2" 
+                           placeholder="Buscar productos..." 
+                           value="{{ filtros.busqueda }}">
+                    <button class="btn btn-primary" type="submit">
+                        <i class="fas fa-search"></i>
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Filtros laterales -->
+        <div class="col-lg-3 mb-4">
+            <div class="filter-sidebar sticky-top" style="top: 20px; z-index: 1000;">
+                <div class="card shadow-sm">
+                    <div class="card-body">
+                        <h5 class="card-title mb-4">
+                            <i class="fas fa-filter me-2"></i>Filtros
+                        </h5>
+                        <form method="get" id="filterForm">
+                            <!-- Categorías -->
+                            <div class="mb-4">
+                                <label class="form-label fw-bold">Categorías</label>
+                                <div class="categories-list">
+                                    {% for categoria in categorias %}
+                                    <div class="form-check">
+                                        <input type="radio" name="categoria" value="{{ categoria.slug }}" 
+                                               class="form-check-input" id="cat_{{ categoria.slug }}"
+                                               {% if filtros.categoria == categoria.slug %}checked{% endif %}>
+                                        <label class="form-check-label" for="cat_{{ categoria.slug }}">
+                                            {{ categoria.nombre }}
+                                        </label>
+                                    </div>
+                                    {% endfor %}
+                                </div>
+                            </div>
+
+                            <!-- Rango de precios -->
+                            <div class="mb-4">
+                                <label class="form-label fw-bold">Precio</label>
+                                <div class="row g-2">
+                                    <div class="col-6">
+                                        <input type="number" name="precio_min" class="form-control" 
+                                               placeholder="Min €" value="{{ filtros.precio_min }}">
+                                    </div>
+                                    <div class="col-6">
+                                        <input type="number" name="precio_max" class="form-control" 
+                                               placeholder="Max €" value="{{ filtros.precio_max }}">
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Valoración mínima -->
+                            <div class="mb-4">
+                                <label class="form-label fw-bold">Valoración mínima</label>
+                                <select name="valoracion_min" class="form-select">
+                                    <option value="">Todas las valoraciones</option>
+                                    <option value="4" {% if filtros.valoracion_min == '4' %}selected{% endif %}>
+                                        ⭐⭐⭐⭐ y más
+                                    </option>
+                                    <option value="3" {% if filtros.valoracion_min == '3' %}selected{% endif %}>
+                                        ⭐⭐⭐ y más
+                                    </option>
+                                    <option value="2" {% if filtros.valoracion_min == '2' %}selected{% endif %}>
+                                        ⭐⭐ y más
+                                    </option>
+                                </select>
+                            </div>
+
+                            <!-- Disponibilidad -->
+                            <div class="mb-4">
+                                <label class="form-label fw-bold">Disponibilidad</label>
+                                <select name="disponibilidad" class="form-select">
+                                    <option value="">Todos los productos</option>
+                                    <option value="disponible" {% if filtros.disponibilidad == 'disponible' %}selected{% endif %}>
+                                        En stock
+                                    </option>
+                                    <option value="agotado" {% if filtros.disponibilidad == 'agotado' %}selected{% endif %}>
+                                        Agotados
+                                    </option>
+                                </select>
+                            </div>
+
+                            <!-- Promociones -->
+                            <div class="mb-4">
+                                <div class="form-check">
+                                    <input type="checkbox" name="promociones" class="form-check-input" 
+                                           id="soloPromos" {% if filtros.promociones %}checked{% endif %}>
+                                    <label class="form-check-label fw-bold" for="soloPromos">
+                                        Solo productos en oferta
+                                    </label>
+                                </div>
+                            </div>
+
+                            <!-- Ordenar por -->
+                            <div class="mb-4">
+                                <label class="form-label fw-bold">Ordenar por</label>
+                                <select name="ordenar" class="form-select">
+                                    <option value="mas_nuevo" {% if filtros.ordenar == 'mas_nuevo' %}selected{% endif %}>
+                                        Más nuevos primero
+                                    </option>
+                                    <option value="precio_asc" {% if filtros.ordenar == 'precio_asc' %}selected{% endif %}>
+                                        Precio: menor a mayor
+                                    </option>
+                                    <option value="precio_desc" {% if filtros.ordenar == 'precio_desc' %}selected{% endif %}>
+                                        Precio: mayor a menor
+                                    </option>
+                                    <option value="mas_comprado" {% if filtros.ordenar == 'mas_comprado' %}selected{% endif %}>
+                                        Más vendidos
+                                    </option>
+                                    <option value="mejor_valorado" {% if filtros.ordenar == 'mejor_valorado' %}selected{% endif %}>
+                                        Mejor valorados
+                                    </option>
+                                    <option value="descuento" {% if filtros.ordenar == 'descuento' %}selected{% endif %}>
+                                        Mayor descuento
+                                    </option>
+                                </select>
+                            </div>
+
+                            <div class="d-grid gap-2">
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="fas fa-sync-alt me-2"></i>Aplicar filtros
+                                </button>
+                                <a href="{% url 'catalog' %}" class="btn btn-outline-secondary">
+                                    <i class="fas fa-times me-2"></i>Limpiar filtros
+                                </a>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Productos -->
+        <div class="col-lg-9">
+            <!-- Resultados y ordenación -->
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <p class="mb-0 text-muted">
+                    <i class="fas fa-box me-2"></i>{{ productos.count }} productos encontrados
+                </p>
+            </div>
+
+            <!-- Grid de productos -->
+            <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+                {% for producto in productos %}
+                <div class="col">
+                    <div class="card h-100 product-card shadow-sm">
+                        {% if producto.imagen %}
+                            <img src="{{ producto.imagen.url }}" class="card-img-top" alt="{{ producto.nombre }}">
+                        {% endif %}
+                        
+                        <div class="card-body">
+                            {% if producto.en_promocion %}
+                            <div class="promotion-badge">
+                                <span class="badge bg-danger">-{{ producto.descuento }}%</span>
+                            </div>
+                            {% endif %}
+                            
+                            <h5 class="card-title">
+                                <a href="{% url 'product_detail' producto.id %}" class="text-decoration-none text-dark">
+                                    {{ producto.nombre }}
+                                </a>
+                            </h5>
+                            
+                            <div class="mb-2">
+                                <div class="rating">
+                                    {% for i in "12345"|make_list %}
+                                    <i class="fas fa-star {% if forloop.counter <= producto.valoracion %}text-warning{% else %}text-muted{% endif %}"></i>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                            
+                            <p class="text-muted">Stock: {{ producto.stock }}</p>
+                            <div class="price-container mb-3">
+                                {% if producto.en_promocion %}
+                                    <div class="d-flex align-items-center gap-2">
+                                        <div class="original-price">
+                                            <span class="text-decoration-line-through text-muted fs-6">€{{ producto.precio }}</span>
+                                        </div>
+                                        <div class="current-price">
+                                            <span class="text-danger fw-bold fs-4">€{{ producto.precio_promocion }}</span>
+                                        </div>
+                                        <div class="discount-badge">
+                                            <span class="badge bg-danger">
+                                                <i class="fas fa-tag me-1"></i>-{{ producto.descuento }}%
+                                            </span>
+                                        </div>
+                                    </div>
+                                    <div class="savings text-success small mt-1">
+                                        <i class="fas fa-piggy-bank me-1"></i>
+                                        Ahorras: €{{ producto.precio|subtract:producto.precio_promocion|floatformat:2 }}
+                                    </div>
+                                {% else %}
+                                    <span class="fw-bold fs-4">€{{ producto.precio }}</span>
+                                {% endif %}
+                            </div>
+                            <form action="{% url 'add_to_cart' producto.id %}" method="POST">
+                                {% csrf_token %}
+                                <button type="submit" class="btn btn-primary w-100" 
+                                        {% if producto.agotado %}disabled{% endif %}>
+                                    {% if producto.agotado %}Agotado{% else %}Añadir al carrito{% endif %}
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+                {% empty %}
+                    <div class="text-center py-5">
+                        <p>No se encontraron productos con los filtros seleccionados.</p>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.search-container {
+    position: relative;
+}
+
+.search-results {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background: white;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    margin-top: 4px;
+    max-height: 400px;
+    overflow-y: auto;
+    z-index: 1000;
+}
+
+.search-result-item {
+    padding: 10px 15px;
+    border-bottom: 1px solid #eee;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.search-result-item:hover {
+    background-color: #f8f9fa;
+}
+
+.search-result-item:last-child {
+    border-bottom: none;
+}
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const searchInput = document.getElementById('searchInput');
+    const searchResults = document.getElementById('searchResults');
+    let timeoutId;
+
+    searchInput.addEventListener('input', function() {
+        clearTimeout(timeoutId);
+        const query = this.value.trim();
+        
+        if (query.length < 2) {
+            searchResults.classList.add('d-none');
+            return;
+        }
+
+        timeoutId = setTimeout(() => {
+            fetch(`/products/search-ajax/?query=${encodeURIComponent(query)}`)
+                .then(response => response.json())
+                .then(data => {
+                    searchResults.innerHTML = '';
+                    
+                    if (data.results.length > 0) {
+                        data.results.forEach(product => {
+                            const div = document.createElement('div');
+                            div.className = 'search-result-item';
+                            
+                            let priceHtml = product.en_promocion ? 
+                                `<span class="text-danger fw-bold">€${product.precio}</span>
+                                 <span class="badge bg-danger ms-2">-${product.descuento}%</span>` :
+                                `<span class="fw-bold">€${product.precio}</span>`;
+                            
+                            div.innerHTML = `
+                                <div class="d-flex align-items-center">
+                                    ${product.imagen_url ? 
+                                        `<img src="${product.imagen_url}" alt="" class="me-3" 
+                                              style="width: 40px; height: 40px; object-fit: cover; border-radius: 4px;">` : 
+                                        ''}
+                                    <div>
+                                        <div class="fw-bold">${product.nombre}</div>
+                                        <div>${priceHtml}</div>
+                                    </div>
+                                </div>
+                            `;
+                            
+                            div.addEventListener('click', () => {
+                                window.location.href = product.url;
+                            });
+                            
+                            searchResults.appendChild(div);
+                        });
+                        searchResults.classList.remove('d-none');
+                    } else {
+                        searchResults.innerHTML = `
+                            <div class="p-3 text-center text-muted">
+                                No se encontraron productos
+                            </div>
+                        `;
+                        searchResults.classList.remove('d-none');
+                    }
+                });
+        }, 300);
+    });
+
+    // Cerrar resultados al hacer clic fuera
+    document.addEventListener('click', function(e) {
+        if (!searchInput.contains(e.target) && !searchResults.contains(e.target)) {
+            searchResults.classList.add('d-none');
+        }
+    });
+});
+</script>
+{% endblock %} 

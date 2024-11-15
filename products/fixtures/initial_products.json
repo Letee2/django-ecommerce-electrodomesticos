@@ -1,0 +1,452 @@
+[
+    {
+        "model": "products.product",
+        "pk": 36,
+        "fields": {
+            "nombre": "Nevera Camping Dometic CFX3 55",
+            "descripcion": "Nevera portátil compresor, WiFi, 55L",
+            "precio": "999.99",
+            "imagen": "static/images/default-product.jpg",
+            "destacado": true,
+            "en_promocion": false,
+            "descuento": 0,
+            "precio_promocion": null,
+            "stock": 4,
+            "valoracion": 4.8,
+            "veces_comprado": 56,
+            "categoria": 2
+        }
+    },
+    {
+        "model": "products.product",
+        "pk": 37,
+        "fields": {
+            "nombre": "Báscula de Cocina Terraillon",
+            "descripcion": "Báscula digital con conexión bluetooth",
+            "precio": "49.99",
+            "imagen": "static/images/default-product.jpg",
+            "destacado": false,
+            "en_promocion": true,
+            "descuento": 20,
+            "precio_promocion": "39.99",
+            "stock": 25,
+            "valoracion": 4.3,
+            "veces_comprado": 289,
+            "categoria": 4
+        }
+    },
+    {
+        "model": "products.product",
+        "pk": 38,
+        "fields": {
+            "nombre": "Yogurtera Severin",
+            "descripcion": "Yogurtera con 14 tarros de cristal, temporizador",
+            "precio": "79.99",
+            "imagen": "static/images/default-product.jpg",
+            "destacado": false,
+            "en_promocion": false,
+            "descuento": 0,
+            "precio_promocion": null,
+            "stock": 0,
+            "valoracion": 4.5,
+            "veces_comprado": 167,
+            "categoria": 4
+        }
+    },
+    {
+        "model": "products.product",
+        "pk": 39,
+        "fields": {
+            "nombre": "Envasadora al Vacío FoodSaver",
+            "descripcion": "Envasadora al vacío profesional con rollo incluido",
+            "precio": "199.99",
+            "imagen": "static/images/default-product.jpg",
+            "destacado": true,
+            "en_promocion": true,
+            "descuento": 25,
+            "precio_promocion": "149.99",
+            "stock": 11,
+            "valoracion": 4.6,
+            "veces_comprado": 198,
+            "categoria": 4
+        }
+    },
+    {
+        "model": "products.product",
+        "pk": 40,
+        "fields": {
+            "nombre": "Mini Nevera Russell Hobbs",
+            "descripcion": "Mini nevera 40L, función frío y calor",
+            "precio": "149.99",
+            "imagen": "static/images/default-product.jpg",
+            "destacado": false,
+            "en_promocion": true,
+            "descuento": 15,
+            "precio_promocion": "127.49",
+            "stock": 16,
+            "valoracion": 4.4,
+            "veces_comprado": 145,
+            "categoria": 2
+        }
+    },
+    {
+        "model": "products.product",
+        "pk": 41,
+        "fields": {
+            "nombre": "Placa de Inducción Balay 3EB969",
+            "descripcion": "Placa de inducción flexible, 3 zonas, control táctil",
+            "precio": "549.99",
+            "imagen": "static/images/default-product.jpg",
+            "destacado": true,
+            "en_promocion": true,
+            "descuento": 20,
+            "precio_promocion": "439.99",
+            "stock": 8,
+            "valoracion": 4.7,
+            "veces_comprado": 123,
+            "categoria": 3
+        }
+    },
+    {
+        "model": "products.product",
+        "pk": 42,
+        "fields": {
+            "nombre": "Humidificador Xiaomi Smart",
+            "descripcion": "Humidificador inteligente con control por app, 4L",
+            "precio": "79.99",
+            "imagen": "static/images/default-product.jpg",
+            "destacado": false,
+            "en_promocion": true,
+            "descuento": 25,
+            "precio_promocion": "59.99",
+            "stock": 15,
+            "valoracion": 4.5,
+            "veces_comprado": 234,
+            "categoria": 5
+        }
+    },
+    {
+        "model": "products.product",
+        "pk": 43,
+        "fields": {
+            "nombre": "Procesador de Alimentos Magimix 5200XL",
+            "descripcion": "Procesador premium, 1100W, 3 bowls, kit pastelería",
+            "precio": "499.99",
+            "imagen": "static/images/default-product.jpg",
+            "destacado": true,
+            "en_promocion": false,
+            "descuento": 0,
+            "precio_promocion": null,
+            "stock": 6,
+            "valoracion": 4.8,
+            "veces_comprado": 167,
+            "categoria": 4
+        }
+    },
+    {
+        "model": "products.product",
+        "pk": 44,
+        "fields": {
+            "nombre": "Lavadora-Secadora Samsung QuickDrive",
+            "descripcion": "Lavadora-secadora 10/6kg, WiFi, vapor",
+            "precio": "999.99",
+            "imagen": "static/images/default-product.jpg",
+            "destacado": true,
+            "en_promocion": true,
+            "descuento": 15,
+            "precio_promocion": "849.99",
+            "stock": 4,
+            "valoracion": 4.6,
+            "veces_comprado": 89,
+            "categoria": 1
+        }
+    },
+    {
+        "model": "products.product",
+        "pk": 45,
+        "fields": {
+            "nombre": "Ventilador Torre Rowenta Eole",
+            "descripcion": "Ventilador de torre con ionizador, 3 velocidades",
+            "precio": "129.99",
+            "imagen": "static/images/default-product.jpg",
+            "destacado": false,
+            "en_promocion": true,
+            "descuento": 30,
+            "precio_promocion": "90.99",
+            "stock": 20,
+            "valoracion": 4.4,
+            "veces_comprado": 278,
+            "categoria": 5
+        }
+    },
+    {
+        "model": "products.product",
+        "pk": 46,
+        "fields": {
+            "nombre": "Horno Compacto Siemens iQ700",
+            "descripcion": "Horno compacto con microondas, pirolítico",
+            "precio": "1299.99",
+            "imagen": "static/images/default-product.jpg",
+            "destacado": true,
+            "en_promocion": false,
+            "descuento": 0,
+            "precio_promocion": null,
+            "stock": 3,
+            "valoracion": 4.9,
+            "veces_comprado": 45,
+            "categoria": 3
+        }
+    },
+    {
+        "model": "products.product",
+        "pk": 47,
+        "fields": {
+            "nombre": "Aspirador Robot Roborock S7",
+            "descripcion": "Robot aspirador y fregona, tecnología sónica",
+            "precio": "649.99",
+            "imagen": "static/images/default-product.jpg",
+            "destacado": true,
+            "en_promocion": true,
+            "descuento": 20,
+            "precio_promocion": "519.99",
+            "stock": 7,
+            "valoracion": 4.7,
+            "veces_comprado": 156,
+            "categoria": 6
+        }
+    },
+    {
+        "model": "products.product",
+        "pk": 48,
+        "fields": {
+            "nombre": "Máquina de Helados Cuisinart",
+            "descripcion": "Heladera profesional con compresor, 1.5L",
+            "precio": "299.99",
+            "imagen": "static/images/default-product.jpg",
+            "destacado": false,
+            "en_promocion": true,
+            "descuento": 25,
+            "precio_promocion": "224.99",
+            "stock": 5,
+            "valoracion": 4.5,
+            "veces_comprado": 134,
+            "categoria": 4
+        }
+    },
+    {
+        "model": "products.product",
+        "pk": 49,
+        "fields": {
+            "nombre": "Frigorífico Side by Side Bosch",
+            "descripcion": "Frigorífico americano, dispensador, NoFrost",
+            "precio": "1799.99",
+            "imagen": "static/images/default-product.jpg",
+            "destacado": true,
+            "en_promocion": true,
+            "descuento": 10,
+            "precio_promocion": "1619.99",
+            "stock": 2,
+            "valoracion": 4.8,
+            "veces_comprado": 67,
+            "categoria": 2
+        }
+    },
+    {
+        "model": "products.product",
+        "pk": 50,
+        "fields": {
+            "nombre": "Aspirador Escoba Samsung Jet",
+            "descripcion": "Aspirador sin cable, 200W, filtro HEPA",
+            "precio": "449.99",
+            "imagen": "static/images/default-product.jpg",
+            "destacado": false,
+            "en_promocion": false,
+            "descuento": 0,
+            "precio_promocion": null,
+            "stock": 10,
+            "valoracion": 4.6,
+            "veces_comprado": 189,
+            "categoria": 6
+        }
+    },
+    {
+        "model": "products.product",
+        "pk": 51,
+        "fields": {
+            "nombre": "Cafetera Sage Oracle Touch",
+            "descripcion": "Cafetera superautomática con pantalla táctil, molinillo profesional",
+            "precio": "2499.99",
+            "imagen": "static/images/default-product.jpg",
+            "destacado": true,
+            "en_promocion": true,
+            "descuento": 15,
+            "precio_promocion": "2124.99",
+            "stock": 3,
+            "valoracion": 4.9,
+            "veces_comprado": 45,
+            "categoria": 4
+        }
+    },
+    {
+        "model": "products.product",
+        "pk": 52,
+        "fields": {
+            "nombre": "Deshumidificador DeLonghi DEX16",
+            "descripcion": "Deshumidificador 16L/día, ideal para 75m²",
+            "precio": "299.99",
+            "imagen": "static/images/default-product.jpg",
+            "destacado": false,
+            "en_promocion": true,
+            "descuento": 20,
+            "precio_promocion": "239.99",
+            "stock": 8,
+            "valoracion": 4.5,
+            "veces_comprado": 167,
+            "categoria": 5
+        }
+    },
+    {
+        "model": "products.product",
+        "pk": 53,
+        "fields": {
+            "nombre": "Vitrocerámica Teka TB6415",
+            "descripcion": "Placa vitrocerámica 4 zonas, control táctil",
+            "precio": "249.99",
+            "imagen": "static/images/default-product.jpg",
+            "destacado": false,
+            "en_promocion": false,
+            "descuento": 0,
+            "precio_promocion": null,
+            "stock": 12,
+            "valoracion": 4.4,
+            "veces_comprado": 198,
+            "categoria": 3
+        }
+    },
+    {
+        "model": "products.product",
+        "pk": 54,
+        "fields": {
+            "nombre": "Secadora Bomba Calor Siemens",
+            "descripcion": "Secadora 9kg, A+++, tecnología autoCleaning",
+            "precio": "899.99",
+            "imagen": "static/images/default-product.jpg",
+            "destacado": true,
+            "en_promocion": true,
+            "descuento": 25,
+            "precio_promocion": "674.99",
+            "stock": 5,
+            "valoracion": 4.7,
+            "veces_comprado": 134,
+            "categoria": 1
+        }
+    },
+    {
+        "model": "products.product",
+        "pk": 55,
+        "fields": {
+            "nombre": "Licuadora Hurom H-AA",
+            "descripcion": "Licuadora de prensado en frío, motor a 43 rpm",
+            "precio": "459.99",
+            "imagen": "static/images/default-product.jpg",
+            "destacado": false,
+            "en_promocion": true,
+            "descuento": 30,
+            "precio_promocion": "321.99",
+            "stock": 6,
+            "valoracion": 4.8,
+            "veces_comprado": 156,
+            "categoria": 4
+        }
+    },
+    {
+        "model": "products.product",
+        "pk": 56,
+        "fields": {
+            "nombre": "Congelador Horizontal Zanussi",
+            "descripcion": "Arcón congelador 400L, función FastFreeze",
+            "precio": "549.99",
+            "imagen": "static/images/default-product.jpg",
+            "destacado": true,
+            "en_promocion": false,
+            "descuento": 0,
+            "precio_promocion": null,
+            "stock": 4,
+            "valoracion": 4.5,
+            "veces_comprado": 89,
+            "categoria": 2
+        }
+    },
+    {
+        "model": "products.product",
+        "pk": 57,
+        "fields": {
+            "nombre": "Robot de Cocina Bosch OptiMUM",
+            "descripcion": "Robot de cocina 1500W, báscula integrada",
+            "precio": "699.99",
+            "imagen": "static/images/default-product.jpg",
+            "destacado": true,
+            "en_promocion": true,
+            "descuento": 20,
+            "precio_promocion": "559.99",
+            "stock": 7,
+            "valoracion": 4.6,
+            "veces_comprado": 178,
+            "categoria": 4
+        }
+    },
+    {
+        "model": "products.product",
+        "pk": 58,
+        "fields": {
+            "nombre": "Aire Acondicionado Mitsubishi",
+            "descripcion": "Split inverter 4500 frigorías, WiFi, A+++",
+            "precio": "999.99",
+            "imagen": "static/images/default-product.jpg",
+            "destacado": true,
+            "en_promocion": true,
+            "descuento": 15,
+            "precio_promocion": "849.99",
+            "stock": 3,
+            "valoracion": 4.8,
+            "veces_comprado": 145,
+            "categoria": 5
+        }
+    },
+    {
+        "model": "products.product",
+        "pk": 59,
+        "fields": {
+            "nombre": "Aspirador Vertical Tineco Pure One",
+            "descripcion": "Aspirador inteligente con sensor de suciedad",
+            "precio": "399.99",
+            "imagen": "static/images/default-product.jpg",
+            "destacado": false,
+            "en_promocion": true,
+            "descuento": 25,
+            "precio_promocion": "299.99",
+            "stock": 9,
+            "valoracion": 4.7,
+            "veces_comprado": 167,
+            "categoria": 6
+        }
+    },
+    {
+        "model": "products.product",
+        "pk": 60,
+        "fields": {
+            "nombre": "Horno de Sobremesa Breville",
+            "descripcion": "Horno compacto con funciones smart, 10 programas",
+            "precio": "279.99",
+            "imagen": "static/images/default-product.jpg",
+            "destacado": false,
+            "en_promocion": false,
+            "descuento": 0,
+            "precio_promocion": null,
+            "stock": 11,
+            "valoracion": 4.5,
+            "veces_comprado": 198,
+            "categoria": 3
+        }
+    }
+] 

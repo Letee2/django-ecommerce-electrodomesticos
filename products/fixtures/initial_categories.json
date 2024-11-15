@@ -1,0 +1,50 @@
+[
+    {
+        "model": "products.category",
+        "pk": 1,
+        "fields": {
+            "nombre": "Lavado y Secado",
+            "slug": "lavado-secado"
+        }
+    },
+    {
+        "model": "products.category",
+        "pk": 2,
+        "fields": {
+            "nombre": "Refrigeración",
+            "slug": "refrigeracion"
+        }
+    },
+    {
+        "model": "products.category",
+        "pk": 3,
+        "fields": {
+            "nombre": "Cocina",
+            "slug": "cocina"
+        }
+    },
+    {
+        "model": "products.category",
+        "pk": 4,
+        "fields": {
+            "nombre": "Pequeño Electrodoméstico",
+            "slug": "pequeno-electrodomestico"
+        }
+    },
+    {
+        "model": "products.category",
+        "pk": 5,
+        "fields": {
+            "nombre": "Climatización",
+            "slug": "climatizacion"
+        }
+    },
+    {
+        "model": "products.category",
+        "pk": 6,
+        "fields": {
+            "nombre": "Limpieza",
+            "slug": "limpieza"
+        }
+    }
+]

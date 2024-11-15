@@ -21,6 +21,7 @@ from django.conf.urls.static import static
 from products.views import home, product_detail
 from users import views as user_views
 from cart import views as cart_views
+from django.urls import path, include
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -28,6 +29,8 @@ urlpatterns = [
     path('registro/', user_views.registro, name='registro'),
     path('login/', user_views.iniciar_sesion, name='login'),
     path('logout/', user_views.cerrar_sesion, name='logout'),
+    path('', include('products.urls')),
+    path('cart/', include('cart.urls')),
     path('cart/', cart_views.cart_detail, name='cart_detail'),
     path('cart/add/<int:product_id>/', cart_views.add_to_cart, name='add_to_cart'),
     path('checkout/cod/', cart_views.checkout_cod, name='checkout_cod'),
@@ -35,6 +38,7 @@ urlpatterns = [
     path('checkout/success/', cart_views.checkout_success, name='checkout_success'),
     path('product/<int:product_id>/', product_detail, name='product_detail'),
     path('profile/', user_views.profile, name='profile'),
+    path('', include('orders.urls')),
 ]
 
 if settings.DEBUG:

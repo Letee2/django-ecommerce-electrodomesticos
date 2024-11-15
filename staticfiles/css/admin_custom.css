@@ -1,0 +1,22 @@
+.field-mostrar_imagen img {
+    border: 1px solid #ddd;
+    padding: 2px;
+    background: #fff;
+}
+
+.form-row {
+    margin-bottom: 1rem;
+}
+
+.inline-group {
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    padding: 1rem;
+    margin-bottom: 1rem;
+}
+
+.field-precio_promocion {
+    background-color: #f8f9fa;
+    padding: 0.5rem;
+    border-radius: 4px;
+} 

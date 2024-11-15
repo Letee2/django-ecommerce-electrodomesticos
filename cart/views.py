@@ -3,16 +3,20 @@ from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from .models import CartItem
 from products.models import Product
+from orders.views import create_order
 import stripe
 from django.conf import settings
 from django.http import JsonResponse
-
+from decimal import Decimal
 stripe.api_key = settings.STRIPE_SECRET_KEY
 
 @login_required
 def cart_detail(request):
     cart_items = CartItem.objects.filter(user=request.user)
-    total = sum(item.get_total() for item in cart_items)
+    total = sum(
+        item.quantity * (item.product.precio_promocion if item.product.en_promocion else item.product.precio)
+        for item in cart_items
+    )
     context = {
         'cart_items': cart_items,
         'total': total,
@@ -37,19 +41,25 @@ def add_to_cart(request, product_id):
 def checkout_cod(request):
     if request.method == 'POST':
         cart_items = CartItem.objects.filter(user=request.user)
-        # Procesar pedido contrareembolso
-        cart_items.delete()
-        messages.success(request, 'Pedido realizado correctamente. Pagarás al recibir.')
-        return redirect('home')
+        if not cart_items.exists():
+            messages.error(request, 'Tu carrito está vacío')
+            return redirect('cart_detail')
+            
+        shipping_method = request.POST.get('shipping_method', 'free')
+        return create_order(request, payment_method='cod', shipping_method=shipping_method)
 
 @login_required
 def create_checkout_session(request):
     if request.method == 'POST':
+        shipping_method = request.POST.get('shipping_method', 'free')
         cart_items = CartItem.objects.filter(user=request.user)
         
         if not cart_items.exists():
             return JsonResponse({'error': 'El carrito está vacío'})
 
+        # Calcular costos de envío
+        shipping_cost = 4.99 if shipping_method == 'express' else 0
+        
         try:
             checkout_session = stripe.checkout.Session.create(
                 payment_method_types=['card'],

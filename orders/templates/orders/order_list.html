@@ -1,0 +1,111 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="container py-5">
+    <h2 class="mb-4">Mis Pedidos</h2>
+    
+    {% if orders %}
+        <div class="card shadow-sm">
+            <div class="table-responsive">
+                <table class="table table-hover mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Nº Pedido</th>
+                            <th>Fecha</th>
+                            <th>Total</th>
+                            <th>Estado</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for order in orders %}
+                        <tr>
+                            <td>#{{ order.id }}</td>
+                            <td>{{ order.created_at|date:"d/m/Y H:i" }}</td>
+                            <td>€{{ order.total }}</td>
+                            <td>
+                                <span class="badge {% if order.status == 'pending' %}bg-warning
+                                    {% elif order.status == 'shipped' %}bg-info
+                                    {% else %}bg-success{% endif %} rounded-pill">
+                                    {{ order.get_status_display }}
+                                </span>
+                            </td>
+                            <td>
+                                <button class="btn btn-sm btn-outline-primary rounded-pill" 
+                                        data-bs-toggle="modal" data-bs-target="#orderModal{{ order.id }}">
+                                    <i class="fas fa-eye me-1"></i>Ver detalles
+                                </button>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        
+        {% for order in orders %}
+        <div class="modal fade" id="orderModal{{ order.id }}" tabindex="-1">
+            <div class="modal-dialog modal-lg">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Detalles del Pedido #{{ order.id }}</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="row mb-4">
+                            <div class="col-md-6">
+                                <h6>Información del Pedido</h6>
+                                <p class="mb-1"><strong>Fecha:</strong> {{ order.created_at|date:"d/m/Y H:i" }}</p>
+                                <p class="mb-1"><strong>Estado:</strong> {{ order.get_status_display }}</p>
+                                <p class="mb-1"><strong>Método de pago:</strong> {{ order.get_payment_method_display }}</p>
+                                <p class="mb-1"><strong>Método de envío:</strong> {{ order.get_shipping_method_display }}</p>
+                            </div>
+                            <div class="col-md-6 text-end">
+                                <h6>Resumen del Pedido</h6>
+                                <p class="mb-1"><strong>Subtotal:</strong> €{{ order.total|floatformat:2 }}</p>
+                                <p class="mb-1"><strong>Gastos de envío:</strong> €{{ order.shipping_cost|floatformat:2 }}</p>
+                                <p class="mb-1"><strong>Total:</strong> €{{ order.total|add:order.shipping_cost|floatformat:2 }}</p>
+                            </div>
+                        </div>
+                        
+                        <h6>Productos</h6>
+                        <div class="table-responsive">
+                            <table class="table table-sm">
+                                <thead>
+                                    <tr>
+                                        <th>Producto</th>
+                                        <th>Cantidad</th>
+                                        <th class="text-end">Precio</th>
+                                        <th class="text-end">Total</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for item in order.items.all %}
+                                    <tr>
+                                        <td>{{ item.product.nombre }}</td>
+                                        <td>{{ item.quantity }}</td>
+                                        <td class="text-end">€{{ item.price|floatformat:2 }}</td>
+                                        <td class="text-end">€{{ item.total|floatformat:2 }}</td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    {% else %}
+        <div class="text-center py-5">
+            <i class="fas fa-box-open fa-3x text-muted mb-3"></i>
+            <h3>No tienes pedidos todavía</h3>
+            <p class="text-muted">¡Empieza a comprar para ver tus pedidos aquí!</p>
+            <a href="{% url 'home' %}" class="btn btn-primary mt-3">
+                <i class="fas fa-shopping-bag me-2"></i>Ir a comprar
+            </a>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

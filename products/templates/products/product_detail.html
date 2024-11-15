@@ -18,7 +18,29 @@
         <div class="col-md-6">
             <div class="product-info">
                 <h1>{{ product.nombre }}</h1>
-                <p class="lead">€{{ product.precio }}</p>
+                <p class="stock-info mb-3">
+                    <i class="fas fa-box me-2"></i>
+                    {% if product.agotado %}
+                        <span class="badge bg-danger">
+                            <i class="fas fa-times-circle me-1"></i>Agotado
+                        </span>
+                    {% else %}
+                        <span class="badge bg-success">
+                            <i class="fas fa-check-circle me-1"></i>{{ product.stock }} unidades disponibles
+                        </span>
+                    {% endif %}
+                </p>
+                {% if product.en_promocion %}
+                    <div class="promocion-badge bg-warning text-dark p-2 rounded mb-3">
+                        <i class="fas fa-tag me-2"></i>{{ product.descuento }}% de descuento
+                    </div>
+                    <p class="lead">
+                        <span class="text-decoration-line-through text-muted">€{{ product.precio }}</span>
+                        <span class="text-danger fw-bold">€{{ product.precio_promocion }}</span>
+                    </p>
+                {% else %}
+                    <p class="lead">€{{ product.precio }}</p>
+                {% endif %}
                 <div class="mb-4">
                     <h4>Descripción</h4>
                     <p>{{ product.descripcion }}</p>
