@@ -6,8 +6,14 @@ from decimal import Decimal
 from django.http import JsonResponse
 
 def home(request):
-    productos_destacados = Product.objects.filter(destacado=True)
-    productos_promocion = Product.objects.filter(en_promocion=True)
+    productos_destacados = Product.objects.filter(
+        destacado=True
+    ).order_by('-veces_comprado')[:8]
+    
+    productos_promocion = Product.objects.filter(
+        en_promocion=True
+    ).order_by('-veces_comprado')[:8]
+    
     context = {
         'productos_destacados': productos_destacados,
         'productos_promocion': productos_promocion,
