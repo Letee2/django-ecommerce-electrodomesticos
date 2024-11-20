@@ -9,6 +9,43 @@
     <p class="lead">Tu tienda de confianza para electrodomésticos de calidad</p>
 </div>
 
+<!-- Banners de Catálogos -->
+<section class="catalogs-section mb-5">
+    <div class="container">
+        <div class="row g-4">
+            <!-- Banner Promociones -->
+            <div class="col-md-6">
+                <div class="catalog-banner bg-primary text-white rounded p-4 h-100">
+                    <div class="d-flex flex-column justify-content-between h-100">
+                        <div>
+                            <h3><i class="fas fa-percentage me-2"></i>Ofertas Especiales</h3>
+                            <p>Descubre nuestras mejores promociones en electrodomésticos</p>
+                        </div>
+                        <a href="{% url 'catalog' %}?filter=promociones" class="btn btn-light">
+                            Ver Promociones <i class="fas fa-arrow-right ms-2"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+            <!-- Banner Catálogo Completo -->
+            <div class="col-md-6">
+                <div class="catalog-banner bg-success text-white rounded p-4 h-100">
+                    <div class="d-flex flex-column justify-content-between h-100">
+                        <div>
+                            <h3><i class="fas fa-th-large me-2"></i>Catálogo Completo</h3>
+                            <p>Explora toda nuestra gama de electrodomésticos</p>
+                        </div>
+                        <a href="{% url 'catalog' %}" class="btn btn-light">
+                            Ver Catálogo <i class="fas fa-arrow-right ms-2"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Productos Destacados -->
 <section class="mb-5">
     <h2 class="text-center mb-4">Productos Destacados</h2>
     <div class="productos">

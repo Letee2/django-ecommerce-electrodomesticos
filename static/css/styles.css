@@ -374,3 +374,31 @@ body {
 .profile-section .form-group:last-child {
     margin-bottom: 0 !important;
 }
+
+/* Estilos de los banners del catálogo */
+.catalog-banner {
+    transition: transform 0.3s ease;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+}
+
+.catalog-banner:hover {
+    transform: translateY(-5px);
+}
+
+.catalog-banner h3 {
+    font-size: 1.5rem;
+    margin-bottom: 1rem;
+}
+
+.catalog-banner p {
+    opacity: 0.9;
+    margin-bottom: 1.5rem;
+}
+
+.catalog-banner .btn {
+    transition: all 0.3s ease;
+}
+
+.catalog-banner .btn:hover {
+    transform: translateX(5px);
+}
