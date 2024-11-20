@@ -1,0 +1,91 @@
+[
+    {
+        "model": "products.product",
+        "pk": 1,
+        "fields": {
+            "nombre": "Lavadora Samsung EcoBubble",
+            "descripcion": "Lavadora de carga frontal con tecnología EcoBubble, 9kg de capacidad, 1400 rpm y clasificación energética A+++",
+            "precio": "499.99",
+            "imagen": "productos/lavadora-samsung.jpg",
+            "destacado": true,
+            "promocion": true,
+            "descuento": "15.00"
+        }
+    },
+    {
+        "model": "products.product",
+        "pk": 2,
+        "fields": {
+            "nombre": "Nevera Bosch Serie 4",
+            "descripcion": "Frigorífico combi No Frost, 203x60cm, capacidad neta 330L, display LED y clasificación energética A++",
+            "precio": "649.99",
+            "imagen": "productos/nevera-bosch.jpg",
+            "destacado": true,
+            "promocion": true,
+            "descuento": "20.00"
+        }
+    },
+    {
+        "model": "products.product",
+        "pk": 3,
+        "fields": {
+            "nombre": "Lavavajillas Balay 3VS6030IA",
+            "descripcion": "Lavavajillas de 60cm, 12 servicios, 5 programas, función Media Carga y clasificación energética A++",
+            "precio": "399.99",
+            "imagen": "productos/lavavajillas-balay.jpg",
+            "destacado": false,
+            "promocion": true,
+            "descuento": "10.00"
+        }
+    },
+    {
+        "model": "products.product",
+        "pk": 4,
+        "fields": {
+            "nombre": "Horno Siemens iQ500",
+            "descripcion": "Horno multifunción con display TFT, 71L de capacidad, autolimpieza pirolítica y 8 funciones de cocción",
+            "precio": "549.99",
+            "imagen": "productos/horno-siemens.jpg",
+            "destacado": true,
+            "promocion": false
+        }
+    },
+    {
+        "model": "products.product",
+        "pk": 5,
+        "fields": {
+            "nombre": "Microondas Teka MWE 225 G",
+            "descripcion": "Microondas con grill, 20L, 800W, 5 niveles de potencia y plato giratorio de 24.5cm",
+            "precio": "89.99",
+            "imagen": "productos/microondas-teka.jpg",
+            "destacado": false,
+            "promocion": false
+        }
+    },
+    {
+        "model": "products.product",
+        "pk": 6,
+        "fields": {
+            "nombre": "Secadora Electrolux PerfectCare",
+            "descripcion": "Secadora de bomba de calor, 8kg, tecnología DelicateCare, pantalla LCD y programa rápido 1h",
+            "precio": "599.99",
+            "imagen": "productos/secadora-electrolux.jpg",
+            "destacado": false,
+            "promocion": true,
+            "descuento": "25.00"
+        }
+    },
+    {
+        "model": "products.product",
+        "pk": 7,
+        "fields": {
+            "nombre": "Vitrocerámica Balay 3EB715LR",
+            "descripcion": "Placa vitrocerámica de 60cm, 3 zonas de cocción, control táctil y función memoria",
+            "precio": "299.99",
+            "imagen": "productos/vitroceramica-balay.jpg",
+            "destacado": false,
+            "promocion": true,
+            "descuento": "30.00"
+        }
+    }
+]

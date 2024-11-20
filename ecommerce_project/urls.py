@@ -18,7 +18,7 @@ from django.contrib import admin
 from django.urls import path
 from django.conf import settings
 from django.conf.urls.static import static
-from products.views import home, product_detail
+from products.views import home, product_detail, catalog
 from users import views as user_views
 from cart import views as cart_views
 
@@ -35,6 +35,7 @@ urlpatterns = [
     path('checkout/success/', cart_views.checkout_success, name='checkout_success'),
     path('product/<int:product_id>/', product_detail, name='product_detail'),
     path('profile/', user_views.profile, name='profile'),
+    path('catalogo/', catalog, name='catalog'),
 ]
 
 if settings.DEBUG:
