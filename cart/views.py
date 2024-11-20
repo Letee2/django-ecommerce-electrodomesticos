@@ -8,6 +8,7 @@ import stripe
 from django.conf import settings
 from django.http import JsonResponse
 from decimal import Decimal
+import json
 stripe.api_key = settings.STRIPE_SECRET_KEY
 
 @login_required
@@ -26,16 +27,24 @@ def cart_detail(request):
 
 @login_required
 def add_to_cart(request, product_id):
-    product = Product.objects.get(id=product_id)
-    cart_item, created = CartItem.objects.get_or_create(
-        user=request.user,
-        product=product
-    )
-    if not created:
-        cart_item.quantity += 1
-        cart_item.save()
-    messages.success(request, 'Producto añadido al carrito.')
-    return redirect('home')
+    if request.method == 'POST':
+        product = Product.objects.get(id=product_id)
+        cart_item, created = CartItem.objects.get_or_create(
+            user=request.user,
+            product=product
+        )
+        if not created:
+            cart_item.quantity += 1
+            cart_item.save()
+        
+        # Obtener el total de items en el carrito
+        cart_count = sum(item.quantity for item in CartItem.objects.filter(user=request.user))
+        
+        return JsonResponse({
+            'success': True,
+            'cart_count': cart_count
+        })
+    return JsonResponse({'success': False})
 
 @login_required
 def checkout_cod(request):
@@ -96,3 +105,66 @@ def payment_success(request):
     cart_items.delete()
     messages.success(request, '¡Pago realizado con éxito! Gracias por tu compra.')
     return redirect('home')
+
+@login_required
+def remove_from_cart(request, product_id):
+    if request.method == 'POST':
+        CartItem.objects.filter(user=request.user, product_id=product_id).delete()
+        
+        cart_items = CartItem.objects.filter(user=request.user)
+        cart_count = sum(item.quantity for item in cart_items)
+        total = sum(
+            item.quantity * (item.product.precio_promocion if item.product.en_promocion else item.product.precio)
+            for item in cart_items
+        )
+        
+        return JsonResponse({
+            'success': True,
+            'cart_count': cart_count,
+            'total': float(total)
+        })
+    return JsonResponse({'success': False})
+
+@login_required
+def update_quantity(request, product_id):
+    if request.method == 'POST':
+        try:
+            data = json.loads(request.body)
+            new_quantity = int(data.get('quantity', 0))
+            
+            if new_quantity < 1:
+                return JsonResponse({
+                    'success': False,
+                    'error': 'La cantidad debe ser al menos 1'
+                })
+                
+            cart_item = CartItem.objects.get(user=request.user, product_id=product_id)
+            
+            if new_quantity > cart_item.product.stock:
+                return JsonResponse({
+                    'success': False,
+                    'error': f'Solo hay {cart_item.product.stock} unidades disponibles'
+                })
+                
+            cart_item.quantity = new_quantity
+            cart_item.save()
+            
+            cart_items = CartItem.objects.filter(user=request.user)
+            cart_count = sum(item.quantity for item in cart_items)
+            total = sum(
+                item.quantity * (item.product.precio_promocion if item.product.en_promocion else item.product.precio)
+                for item in cart_items
+            )
+            
+            return JsonResponse({
+                'success': True,
+                'cart_count': cart_count,
+                'quantity': cart_item.quantity,
+                'total': float(total),
+                'item_total': float(cart_item.quantity * (cart_item.product.precio_promocion if cart_item.product.en_promocion else cart_item.product.precio))
+            })
+        except CartItem.DoesNotExist:
+            return JsonResponse({'success': False, 'error': 'Producto no encontrado'})
+        except json.JSONDecodeError:
+            return JsonResponse({'success': False, 'error': 'Datos inválidos'})
+    return JsonResponse({'success': False})

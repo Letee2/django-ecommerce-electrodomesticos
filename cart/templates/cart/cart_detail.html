@@ -38,36 +38,46 @@
         </div>
 
         {% for item in cart_items %}
-            <div class="row align-items-center mb-4 py-3 {% if not forloop.last %}border-bottom{% endif %}">
+            <div class="cart-item row align-items-center mb-4 py-3 {% if not forloop.last %}border-bottom{% endif %}">
                 <div class="col-md-2">
-                    {% if item.product.imagen %}
-                        <img src="{{ item.product.imagen.url }}" alt="{{ item.product.nombre }}" class="img-fluid rounded">
-                    {% else %}
-                        <img src="{% static 'images/default-product.jpg' %}" alt="{{ item.product.nombre }}" class="img-fluid rounded">
-                    {% endif %}
+                    <img src="{% if item.product.imagen %}{{ item.product.imagen.url }}{% else %}{% static 'images/default-product.jpg' %}{% endif %}" 
+                         alt="{{ item.product.nombre }}" class="img-fluid rounded">
                 </div>
                 <div class="col-md-4">
-                    <h5><a href="{% url 'product_detail' item.product.id %}" class="text-decoration-none text-dark">{{ item.product.nombre }}</a></h5>
+                    <h5>
+                        <a href="{% url 'product_detail' item.product.id %}" class="text-decoration-none text-dark">
+                            {{ item.product.nombre }}
+                        </a>
+                    </h5>
                     <p class="text-muted small mb-0">{{ item.product.descripcion|truncatechars:100 }}</p>
+                    <small class="text-success">
+                        <i class="fas fa-shopping-cart me-1"></i>Comprado {{ item.product.veces_comprado }} veces
+                    </small>
                 </div>
                 <div class="col-md-2 text-center">
-                    <div class="quantity">
-                        <span class="fw-bold">Cantidad: {{ item.quantity }}</span>
+                    <div class="quantity-info mb-2">
+                        <span class="quantity-display">Cantidad: {{ item.quantity }}</span>
                     </div>
+                    <button class="btn btn-primary btn-sm remove-from-cart" 
+                            data-product-id="{{ item.product.id }}"
+                            data-product-name="{{ item.product.nombre }}"
+                            data-stock="{{ item.product.stock }}">
+                        <i class="fas fa-edit me-1"></i>Editar
+                    </button>
                 </div>
                 <div class="col-md-2 text-center">
-                    {% if item.product.en_promocion %}
-                        <div>
+                    <div class="price-info">
+                        {% if item.product.en_promocion %}
                             <span class="text-decoration-line-through text-muted small">€{{ item.product.precio }}</span>
                             <span class="badge bg-warning text-dark">-{{ item.product.descuento }}%</span>
                             <div class="text-danger fw-bold">€{{ item.product.precio_promocion }}</div>
-                        </div>
-                    {% else %}
-                        <div class="fw-bold">€{{ item.product.precio }}</div>
-                    {% endif %}
+                        {% else %}
+                            <div class="fw-bold">€{{ item.product.precio }}</div>
+                        {% endif %}
+                    </div>
                 </div>
                 <div class="col-md-2 text-end">
-                    <div class="fw-bold">
+                    <div class="fw-bold item-total">
                         {% if item.product.en_promocion %}
                             €{{ item.quantity|multiply:item.product.precio_promocion }}
                         {% else %}
@@ -80,7 +90,7 @@
         
         <div class="row mt-4">
             <div class="col-12 text-end">
-                <h4>Total: <span class="text-primary">€{{ total }}</span></h4>
+                <h4>Total: <span class="text-primary cart-total">€{{ total|floatformat:2 }}</span></h4>
             </div>
         </div>
 
