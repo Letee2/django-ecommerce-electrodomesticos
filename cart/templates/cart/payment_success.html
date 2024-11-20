@@ -1,0 +1,16 @@
+{% extends 'base.html' %}
+
+{% block title %}Pago Exitoso - E-Commerce{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="text-center">
+        <i class="fas fa-check-circle text-success" style="font-size: 4rem;"></i>
+        <h2 class="mt-3">¡Pago Realizado con Éxito!</h2>
+        <p class="lead">Gracias por tu compra. Recibirás un correo con los detalles de tu pedido.</p>
+        <a href="{% url 'home' %}" class="btn btn-primary mt-3">
+            <i class="fas fa-home me-2"></i>Volver al inicio
+        </a>
+    </div>
+</div>
+{% endblock %}

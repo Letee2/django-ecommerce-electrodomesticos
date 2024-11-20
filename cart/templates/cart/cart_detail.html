@@ -57,8 +57,8 @@
                     <div class="card">
                         <div class="card-body">
                             <h5>Pago con tarjeta</h5>
-                            <p>Pago seguro con Stripe</p>
-                            <button type="button" class="btn btn-success" id="checkout-button">
+                            <p>Pago seguro</p>
+                            <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#paymentModal">
                                 <i class="fas fa-credit-card me-2"></i>Pagar con tarjeta
                             </button>
                         </div>
@@ -72,34 +72,188 @@
 </div>
 <script>
     document.addEventListener('DOMContentLoaded', function() {
-        var stripe = Stripe('pk_test_51QKwPAHrUl7MjtOJ3MtMqx4yEmpeGeoGfGUX6JGwW2sTpA3SzonUgHXEVwCgaFi7rWOIhEpysInHi7Th9EHR3XzH00Vn9yD154');
-        var checkoutButton = document.getElementById('checkout-button');
+        const form = document.getElementById('payment-form');
         
-        checkoutButton.addEventListener('click', function(e) {
-            e.preventDefault();
-            checkoutButton.disabled = true;
-            checkoutButton.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Procesando...';
+        // Validación del titular de la tarjeta
+        const cardHolder = document.getElementById('card-holder');
+        cardHolder.addEventListener('input', function(e) {
+            const isValid = e.target.value.length >= 3;
+            if (e.target.value.length > 0) {
+                if (isValid) {
+                    e.target.classList.remove('is-invalid');
+                    e.target.classList.add('is-valid');
+                } else {
+                    e.target.classList.remove('is-valid');
+                    e.target.classList.add('is-invalid');
+                }
+            } else {
+                e.target.classList.remove('is-valid', 'is-invalid');
+            }
+        });
 
-            fetch('{% url "create_checkout_session" %}', {
-                method: 'POST',
-                headers: {
-                    'X-CSRFToken': '{{ csrf_token }}'
+        // Validación y formateo del número de tarjeta
+        const cardNumber = document.getElementById('card-number');
+        cardNumber.addEventListener('input', function(e) {
+            let value = e.target.value.replace(/\D/g, '');
+            e.target.value = value;
+            
+            const isValid = value.length === 16;
+            if (value.length > 0) {
+                if (isValid) {
+                    e.target.classList.remove('is-invalid');
+                    e.target.classList.add('is-valid');
+                } else {
+                    e.target.classList.remove('is-valid');
+                    e.target.classList.add('is-invalid');
                 }
-            })
-            .then(response => response.json())
-            .then(session => {
-                if (session.error) {
-                    throw new Error(session.error);
+            } else {
+                e.target.classList.remove('is-valid', 'is-invalid');
+            }
+        });
+
+        // Validación y formateo de la fecha de expiración
+        const cardExpiry = document.getElementById('card-expiry');
+        cardExpiry.addEventListener('input', function(e) {
+            let value = e.target.value.replace(/\D/g, '');
+            
+            if (value.length > 2) {
+                value = value.slice(0, 2) + '/' + value.slice(2);
+            }
+            
+            if (value.length > 5) {
+                value = value.slice(0, 5);
+            }
+            
+            e.target.value = value;
+            
+            const isValid = /^(0[1-9]|1[0-2])\/([0-9]{2})$/.test(value) && value.length === 5;
+            if (value.length > 0) {
+                if (isValid) {
+                    e.target.classList.remove('is-invalid');
+                    e.target.classList.add('is-valid');
+                } else {
+                    e.target.classList.remove('is-valid');
+                    e.target.classList.add('is-invalid');
                 }
-                return stripe.redirectToCheckout({ sessionId: session.id });
-            })
-            .catch(function(error) {
-                console.error('Error:', error);
-                checkoutButton.disabled = false;
-                checkoutButton.innerHTML = '<i class="fas fa-credit-card me-2"></i>Pagar con tarjeta';
+            } else {
+                e.target.classList.remove('is-valid', 'is-invalid');
+            }
+        });
+
+        // Validación del CVC
+        const cardCvc = document.getElementById('card-cvc');
+        cardCvc.addEventListener('input', function(e) {
+            let value = e.target.value.replace(/\D/g, '');
+            e.target.value = value;
+            
+            const isValid = value.length >= 3 && value.length <= 4;
+            if (value.length > 0) {
+                if (isValid) {
+                    e.target.classList.remove('is-invalid');
+                    e.target.classList.add('is-valid');
+                } else {
+                    e.target.classList.remove('is-valid');
+                    e.target.classList.add('is-invalid');
+                }
+            } else {
+                e.target.classList.remove('is-valid', 'is-invalid');
+            }
+        });
+
+        form.addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            if (!form.checkValidity()) {
+                e.stopPropagation();
+                form.classList.add('was-validated');
+                return;
+            }
+
+            const submitButton = document.getElementById('checkout-button');
+            submitButton.disabled = true;
+            submitButton.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Procesando...';
+
+            try {
+                const formData = {
+                    card_holder: document.getElementById('card-holder').value.trim(),
+                    card_number: document.getElementById('card-number').value.replace(/\D/g, ''),
+                    card_expiry: document.getElementById('card-expiry').value.trim(),
+                    card_cvc: document.getElementById('card-cvc').value.trim()
+                };
+
+                console.log('Enviando datos:', formData); // Debug
+
+                const response = await fetch('/cart/process-payment/', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+                    },
+                    body: JSON.stringify(formData)
+                });
+
+                const contentType = response.headers.get('content-type');
+                if (!contentType || !contentType.includes('application/json')) {
+                    throw new Error('La respuesta del servidor no es JSON válido');
+                }
+
+                const data = await response.json();
+
+                if (data.success) {
+                    window.location.href = data.redirect_url;
+                } else {
+                    throw new Error(data.error || 'Error al procesar el pago');
+                }
+            } catch (error) {
+                console.error('Error completo:', error); // Debug
                 alert('Error al procesar el pago: ' + error.message);
-            });
+            } finally {
+                submitButton.disabled = false;
+                submitButton.innerHTML = '<i class="fas fa-credit-card me-2"></i>Procesar Pago';
+            }
         });
     });
 </script>
+
+<!-- Modal de Pago -->
+<div class="modal fade" id="paymentModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Pago con Tarjeta</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="payment-form" class="needs-validation" novalidate>
+                    {% csrf_token %}
+                    <div class="mb-3">
+                        <label for="card-holder" class="form-label">Titular de la tarjeta</label>
+                        <input type="text" class="form-control" id="card-holder" required>
+                        <div class="invalid-feedback">Introduce el titular de la tarjeta</div>
+                    </div>
+                    <div class="mb-3">
+                        <label for="card-number" class="form-label">Número de tarjeta</label>
+                        <input type="text" class="form-control" id="card-number" maxlength="16" required>
+                        <div class="invalid-feedback">Introduce un número de tarjeta válido</div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="card-expiry" class="form-label">Fecha de expiración</label>
+                            <input type="text" class="form-control" id="card-expiry" maxlength="5" required>
+                            <div class="invalid-feedback">Formato MM/YY</div>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="card-cvc" class="form-label">CVC</label>
+                            <input type="text" class="form-control" id="card-cvc" maxlength="4" required>
+                            <div class="invalid-feedback">CVC inválido</div>
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn-success w-100" id="checkout-button">
+                        <i class="fas fa-credit-card me-2"></i>Procesar Pago
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
 {% endblock %}

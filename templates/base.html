@@ -33,11 +33,10 @@
                             <a class="nav-link" href="{% url 'cart_detail' %}">
                                 <i class="fas fa-shopping-cart"></i> Carrito
                                 {% if user.is_authenticated %}
-                                    {% with count=user|cart_item_count %}
-                                        {% if count > 0 %}
-                                            <span class="badge bg-danger">{{ count }}</span>
-                                        {% endif %}
-                                    {% endwith %}
+                                    {% cart_item_count user as count %}
+                                    {% if count > 0 %}
+                                        <span class="badge bg-danger">{{ count }}</span>
+                                    {% endif %}
                                 {% endif %}
                             </a>
                         </li>

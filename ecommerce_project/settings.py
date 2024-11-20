@@ -146,5 +146,5 @@ LOGIN_URL = 'login'
 # Configuración de mensajes
 MESSAGE_STORAGE = 'django.contrib.messages.storage.session.SessionStorage'
 
-STRIPE_PUBLISHABLE_KEY = os.environ.get('STRIPE_PUBLISHABLE_KEY')
-STRIPE_SECRET_KEY = os.environ.get('STRIPE_SECRET_KEY')
+STRIPE_PUBLISHABLE_KEY = os.getenv("pk_test_51QKwPAHrUl7MjtOJ3MtMqx4yEmpeGeoGfGUX6JGwW2sTpA3SzonUgHXEVwCgaFi7rWOIhEpysInHi7Th9EHR3XzH00Vn9yD154")
+STRIPE_SECRET_KEY = os.getenv("sk_test_51QKwPAHrUl7MjtOJvcIkvrnDvWl3KmK39xha3Ru4wnOoxICVf6lTp72yrRzL1ROxp1S4pjc1TKsPkQHuZjFUVN2N00LRWzjFmu")
