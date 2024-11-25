@@ -67,30 +67,57 @@ def create_checkout_session(request):
             return JsonResponse({'error': 'El carrito está vacío'})
 
         # Calcular costos de envío
-        shipping_cost = 4.99 if shipping_method == 'express' else 0
-        
+        shipping_cost = 499 if shipping_method == 'express' else 0
+
         try:
-            checkout_session = stripe.checkout.Session.create(
-                payment_method_types=['card'],
-                line_items=[{
+            # Crear las líneas de pedido dinámicamente con precios del modelo
+            line_items = []
+            for item in cart_items:
+                # Determinar el precio (promoción o normal)
+                unit_price = (
+                    item.product.precio_promocion if item.product.en_promocion else item.product.precio
+                )
+                
+                line_items.append({
                     'price_data': {
                         'currency': 'eur',
                         'product_data': {
                             'name': item.product.nombre,
+                            'description': item.product.descripcion,  # Opcional
                         },
-                        'unit_amount': int(item.product.precio * 100),
+                        'unit_amount': int(unit_price * 100),  # Convertir a centavos
                     },
                     'quantity': item.quantity,
-                } for item in cart_items],
+                })
+
+            # Agregar costos de envío como línea separada
+            if shipping_cost > 0:
+                line_items.append({
+                    'price_data': {
+                        'currency': 'eur',
+                        'product_data': {
+                            'name': 'Envío rápido',
+                        },
+                        'unit_amount': shipping_cost,
+                    },
+                    'quantity': 1,
+                })
+
+            # Crear la sesión de pago en Stripe
+            checkout_session = stripe.checkout.Session.create(
+                payment_method_types=['card'],
+                line_items=line_items,
                 mode='payment',
-                success_url=request.build_absolute_uri('/') + 'payment/success/',
-                cancel_url=request.build_absolute_uri('/') + 'cart/',
+                success_url=request.build_absolute_uri('/payment/success/'),
+                cancel_url=request.build_absolute_uri('/cart/'),
             )
+
             return JsonResponse({'id': checkout_session.id})
         except Exception as e:
             return JsonResponse({'error': str(e)})
     
     return JsonResponse({'error': 'Método no permitido'}, status=405)
+
 
 @login_required
 def checkout_success(request):

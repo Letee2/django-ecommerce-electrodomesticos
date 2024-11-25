@@ -6,6 +6,8 @@
 {% block title %}Carrito - E-Commerce{% endblock %}
 
 {% block content %}
+<script src="https://js.stripe.com/v3/"></script>
+
 <div class="container cart-container my-5">
     <h2 class="mb-4">Tu Carrito</h2>
     {% if cart_items %}
@@ -134,12 +136,55 @@
 </div>
 
 <script>
-    var stripe = Stripe('{{ STRIPE_PUBLISHABLE_KEY }}');
-    var checkoutButton = document.getElementById('checkout-button');
-    
-    checkoutButton.addEventListener('click', function() {
-        checkoutButton.disabled = true;
-        // ... resto del código de Stripe ...
+    document.addEventListener("DOMContentLoaded", function () {
+        const stripe = Stripe('{{ STRIPE_PUBLISHABLE_KEY }}');
+        const checkoutButton = document.getElementById('checkout-button');
+
+        checkoutButton.addEventListener('click', function () {
+            // Deshabilitar el botón mientras se procesa
+            checkoutButton.disabled = true;
+            checkoutButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Procesando...';
+
+            // Obtener el método de envío seleccionado
+            const shippingMethod = document.querySelector('input[name="shipping_method"]:checked').value;
+
+            fetch("{% url 'create_checkout_session' %}", {
+                method: "POST",
+                headers: {
+                    "X-CSRFToken": "{{ csrf_token }}", // Incluir token CSRF
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({
+                    shipping_method: shippingMethod
+                })
+            })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error("Error al crear la sesión de Stripe");
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    if (data.id) {
+                        return stripe.redirectToCheckout({ sessionId: data.id });
+                    } else {
+                        throw new Error(data.error || "Error desconocido");
+                    }
+                })
+                .then(result => {
+                    if (result.error) {
+                        alert(result.error.message);
+                    }
+                })
+                .catch(error => {
+                    alert("Error: " + error.message);
+                })
+                .finally(() => {
+                    checkoutButton.disabled = false;
+                    checkoutButton.innerHTML = '<i class="fas fa-lock me-2"></i>Pagar con tarjeta';
+                });
+        });
     });
 </script>
+
 {% endblock %}
