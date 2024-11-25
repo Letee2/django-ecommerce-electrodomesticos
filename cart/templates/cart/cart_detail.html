@@ -9,6 +9,7 @@
 <script src="https://js.stripe.com/v3/"></script>
 
 <div class="container cart-container my-5">
+    {% csrf_token %}
     <h2 class="mb-4">Tu Carrito</h2>
     {% if cart_items %}
         <div class="card shadow-sm mb-4">
@@ -60,10 +61,9 @@
                     <div class="quantity-info mb-2">
                         <span class="quantity-display">Cantidad: {{ item.quantity }}</span>
                     </div>
-                    <button class="btn btn-primary btn-sm remove-from-cart" 
-                            data-product-id="{{ item.product.id }}"
-                            data-product-name="{{ item.product.nombre }}"
-                            data-stock="{{ item.product.stock }}">
+                    <button class="btn btn-primary btn-sm" 
+                            data-bs-toggle="modal" 
+                            data-bs-target="#editModal{{ item.product.id }}">
                         <i class="fas fa-edit me-1"></i>Editar
                     </button>
                 </div>
@@ -88,6 +88,42 @@
                     </div>
                 </div>
             </div>
+
+            <!-- Modal de edición para este producto -->
+            <div class="modal fade" id="editModal{{ item.product.id }}" tabindex="-1">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title">Editar {{ item.product.nombre }}</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                        </div>
+                        <div class="modal-body">
+                            <div class="mb-3">
+                                <label class="form-label">Cantidad:</label>
+                                <input type="number" 
+                                       class="form-control quantity-input" 
+                                       data-product-id="{{ item.product.id }}" 
+                                       value="{{ item.quantity }}" 
+                                       min="1"
+                                       max="{{ item.product.stock }}">
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <div class="d-flex justify-content-between w-100">
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                                    <i class="fas fa-times me-1"></i>Cancelar
+                                </button>
+                                <button type="button" class="btn btn-danger me-2 remove-item" data-product-id="{{ item.product.id }}">
+                                    <i class="fas fa-trash me-1"></i>Eliminar del carrito
+                                </button>
+                                <button type="button" class="btn btn-primary update-quantity" data-product-id="{{ item.product.id }}">
+                                    <i class="fas fa-save me-1"></i>Actualizar cantidad
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
         {% endfor %}
         
         <div class="row mt-4">
@@ -102,12 +138,9 @@
                     <div class="card-body">
                         <h5 class="card-title"><i class="fas fa-truck me-2"></i>Contrareembolso</h5>
                         <p class="card-text">Paga cuando recibas tu pedido en casa</p>
-                        <form action="{% url 'checkout_cod' %}" method="POST">
-                            {% csrf_token %}
-                            <button type="submit" class="btn btn-primary w-100">
-                                <i class="fas fa-money-bill me-2"></i>Pagar al recibir
-                            </button>
-                        </form>
+                        <button type="button" class="btn btn-primary w-100" id="cod-button">
+                            <i class="fas fa-money-bill me-2"></i>Pagar al recibir
+                        </button>
                     </div>
                 </div>
             </div>
@@ -139,52 +172,330 @@
     document.addEventListener("DOMContentLoaded", function () {
         const stripe = Stripe('{{ STRIPE_PUBLISHABLE_KEY }}');
         const checkoutButton = document.getElementById('checkout-button');
+        const checkoutModal = new bootstrap.Modal(document.getElementById('checkoutModal'));
+        const errorModal = new bootstrap.Modal(document.getElementById('errorModal'));
+        const errorMessage = document.getElementById('errorMessage');
+        const confirmCheckoutButton = document.getElementById('confirm-checkout');
+        const checkoutForm = document.getElementById('checkout-form');
+        const codButton = document.getElementById('cod-button');
 
-        checkoutButton.addEventListener('click', function () {
-            // Deshabilitar el botón mientras se procesa
-            checkoutButton.disabled = true;
-            checkoutButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Procesando...';
+        // Definir la función fillFormWithUserData
+        function fillFormWithUserData(data) {
+            for (const [key, value] of Object.entries(data)) {
+                const input = document.getElementById(key);
+                if (input && value) {
+                    input.value = value;
+                    input.dispatchEvent(new Event('change')); // Disparar evento change
+                }
+            }
+        }
 
-            // Obtener el método de envío seleccionado
+        // Funcionalidad para mostrar/ocultar contraseña
+        document.querySelectorAll('.toggle-password').forEach(button => {
+            button.addEventListener('click', function() {
+                const input = this.previousElementSibling;
+                const icon = this.querySelector('i');
+                
+                if (input.type === 'password') {
+                    input.type = 'text';
+                    icon.classList.remove('fa-eye');
+                    icon.classList.add('fa-eye-slash');
+                } else {
+                    input.type = 'password';
+                    icon.classList.remove('fa-eye-slash');
+                    icon.classList.add('fa-eye');
+                }
+            });
+        });
+
+        confirmCheckoutButton.addEventListener('click', async function(e) {
+            e.preventDefault();
+            
+            const formData = new FormData(checkoutForm);
             const shippingMethod = document.querySelector('input[name="shipping_method"]:checked').value;
+            
+            const data = {
+                shipping_method: shippingMethod,
+                direccion_envio: formData.get('direccion_envio'),
+                ciudad_envio: formData.get('ciudad_envio'),
+                codigo_postal_envio: formData.get('codigo_postal_envio'),
+                telefono: formData.get('telefono'),
+                nombre: formData.get('nombre'),
+                email: formData.get('email')
+            };
 
-            fetch("{% url 'create_checkout_session' %}", {
-                method: "POST",
-                headers: {
-                    "X-CSRFToken": "{{ csrf_token }}", // Incluir token CSRF
-                    "Content-Type": "application/json"
-                },
-                body: JSON.stringify({
-                    shipping_method: shippingMethod
+            try {
+                {% if user.is_authenticated %}
+                // Primero actualizamos el perfil
+                const updateResponse = await fetch("{% url 'update_profile_ajax' %}", {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRFToken': '{{ csrf_token }}',
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(data)
+                });
+
+                if (!updateResponse.ok) {
+                    throw new Error('Error al actualizar el perfil');
+                }
+                {% endif %}
+
+                // Luego procedemos con el checkout
+                const checkoutResponse = await fetch("{% url 'cart:create_checkout_session' %}", {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRFToken': '{{ csrf_token }}',
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(data)
+                });
+
+                const responseData = await checkoutResponse.json();
+                
+                if (responseData.id) {
+                    checkoutModal.hide();
+                    return stripe.redirectToCheckout({ sessionId: responseData.id });
+                } else if (responseData.error) {
+                    throw new Error(responseData.error);
+                } else {
+                    throw new Error(responseData.error || 'Error desconocido');
+                }
+            } catch (error) {
+                errorMessage.textContent = error.message;
+                errorModal.show();
+            }
+        });
+
+        checkoutButton.addEventListener('click', function() {
+            {% if user.is_authenticated %}
+                fetch("{% url 'cart:create_checkout_session' %}", {
+                    method: "POST",
+                    headers: {
+                        "X-CSRFToken": "{{ csrf_token }}",
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({
+                        shipping_method: document.querySelector('input[name="shipping_method"]:checked').value
+                    })
                 })
-            })
-                .then(response => {
-                    if (!response.ok) {
-                        throw new Error("Error al crear la sesión de Stripe");
-                    }
-                    return response.json();
-                })
+                .then(response => response.json())
                 .then(data => {
-                    if (data.id) {
+                    if (data.incomplete_profile) {
+                        fillFormWithUserData({
+                            'email': '{{ user.email }}',
+                            'nombre': '{{ user.get_full_name|default:user.username }}',
+                            'telefono': '{{ user.userprofile.telefono|default:"" }}',
+                            'direccion_envio': '{{ user.userprofile.direccion_envio|default:"" }}',
+                            'ciudad_envio': '{{ user.userprofile.ciudad_envio|default:"" }}',
+                            'codigo_postal_envio': '{{ user.userprofile.codigo_postal_envio|default:"" }}'
+                        });
+                        checkoutModal.show();
+                    } else if (data.id) {
                         return stripe.redirectToCheckout({ sessionId: data.id });
                     } else {
                         throw new Error(data.error || "Error desconocido");
                     }
                 })
-                .then(result => {
-                    if (result.error) {
-                        alert(result.error.message);
-                    }
-                })
                 .catch(error => {
-                    alert("Error: " + error.message);
-                })
-                .finally(() => {
-                    checkoutButton.disabled = false;
-                    checkoutButton.innerHTML = '<i class="fas fa-lock me-2"></i>Pagar con tarjeta';
+                    errorMessage.textContent = error.message;
+                    errorModal.show();
                 });
+            {% else %}
+                checkoutModal.show();
+            {% endif %}
+        });
+
+        codButton.addEventListener('click', async function() {
+            const orderConfirmationModal = new bootstrap.Modal(document.getElementById('orderConfirmationModal'));
+            
+            {% if user.is_authenticated %}
+                const shippingMethod = document.querySelector('input[name="shipping_method"]:checked').value;
+                try {
+                    const response = await fetch("{% url 'cart:checkout_cod' %}", {
+                        method: 'POST',
+                        headers: {
+                            'X-CSRFToken': '{{ csrf_token }}',
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            shipping_method: shippingMethod
+                        })
+                    });
+                    
+                    const data = await response.json();
+                    if (data.success) {
+                        // Actualizar el modal con los detalles del pedido
+                        document.getElementById('orderNumber').textContent = data.order_id;
+                        document.getElementById('orderTotal').textContent = `€${data.total}`;
+                        
+                        const productsHtml = data.products.map(product => `
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <span>${product.name} x${product.quantity}</span>
+                                <span>€${product.price}</span>
+                            </div>
+                        `).join('');
+                        
+                        document.getElementById('orderProducts').innerHTML = productsHtml;
+                        
+                        // Actualizar el contador del carrito
+                        document.getElementById('cart-counter').textContent = '0';
+                        
+                        // Mostrar el modal de confirmación
+                        orderConfirmationModal.show();
+                        
+                        // Limpiar el contenido del carrito
+                        document.querySelector('.cart-container').innerHTML = `
+                            <div class="text-center py-5">
+                                <i class="fas fa-shopping-cart fa-3x text-muted mb-3"></i>
+                                <h3>Tu carrito está vacío</h3>
+                                <p class="text-muted">¡Añade algunos productos para empezar!</p>
+                                <a href="{% url 'home' %}" class="btn btn-primary mt-3">
+                                    <i class="fas fa-shopping-bag me-2"></i>Ir a comprar
+                                </a>
+                            </div>
+                        `;
+                    } else {
+                        throw new Error(data.error || 'Error al procesar el pedido');
+                    }
+                } catch (error) {
+                    errorMessage.textContent = error.message;
+                    errorModal.show();
+                }
+            {% else %}
+                checkoutModal.show();
+            {% endif %}
         });
     });
 </script>
+
+<div class="modal fade" id="checkoutModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Datos de registro y envío</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="checkout-form">
+                    <h6 class="mb-3">Datos de acceso</h6>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="email">Email*</label>
+                            <input type="email" class="form-control" id="email" name="email" required>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="password">Contraseña*</label>
+                            <div class="input-group">
+                                <input type="password" class="form-control" id="password" name="password" 
+                                    pattern="^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,}$" 
+                                    title="La contraseña debe tener al menos 8 caracteres, una letra y un número" required>
+                                <button class="btn btn-outline-secondary toggle-password" type="button">
+                                    <i class="fas fa-eye"></i>
+                                </button>
+                            </div>
+                            <small class="text-muted">Mínimo 8 caracteres, una letra y un número</small>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="confirm_password">Confirmar Contraseña*</label>
+                            <div class="input-group">
+                                <input type="password" class="form-control" id="confirm_password" name="confirm_password" required>
+                                <button class="btn btn-outline-secondary toggle-password" type="button">
+                                    <i class="fas fa-eye"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <h6 class="mb-3 mt-4">Datos de envío</h6>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="nombre">Nombre completo*</label>
+                            <input type="text" class="form-control" id="nombre" name="nombre" required>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="telefono">Teléfono*</label>
+                            <input type="tel" class="form-control" id="telefono" name="telefono" required>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-12 mb-3">
+                            <label for="direccion_envio">Dirección de envío*</label>
+                            <input type="text" class="form-control" id="direccion_envio" name="direccion_envio" required>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="ciudad_envio">Ciudad*</label>
+                            <input type="text" class="form-control" id="ciudad_envio" name="ciudad_envio" required>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="codigo_postal_envio">Código Postal*</label>
+                            <input type="text" class="form-control" id="codigo_postal_envio" name="codigo_postal_envio" required>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-primary" id="confirm-checkout">Continuar con el pago</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal de Error -->
+<div class="modal fade" id="errorModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-danger text-white">
+                <h5 class="modal-title">Error</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <p id="errorMessage"></p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                <a href="{% url 'login' %}" class="btn btn-primary" id="loginButton" style="display: none;">
+                    Ir a iniciar sesión
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal de Confirmación de Pedido -->
+<div class="modal fade" id="orderConfirmationModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header bg-success text-white">
+                <h5 class="modal-title">¡Pedido Realizado con xito!</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <h6>Número de Pedido: <span id="orderNumber"></span></h6>
+                <hr>
+                <h6>Productos:</h6>
+                <div id="orderProducts" class="mb-3"></div>
+                <hr>
+                <div class="row">
+                    <div class="col-6">
+                        <p>Método de pago: <strong>Contrareembolso</strong></p>
+                    </div>
+                    <div class="col-6 text-end">
+                        <p>Total: <strong id="orderTotal"></strong></p>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <a href="{% url 'orders:order_list' %}" class="btn btn-primary">Ver mis pedidos</a>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+            </div>
+        </div>
+    </div>
+</div>
 
 {% endblock %}

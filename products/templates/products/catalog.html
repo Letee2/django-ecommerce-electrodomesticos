@@ -214,10 +214,11 @@
                                     <span class="fw-bold fs-4">€{{ producto.precio }}</span>
                                 {% endif %}
                             </div>
-                            <form action="{% url 'add_to_cart' producto.id %}" method="POST">
+                            <form class="add-to-cart-form" data-product-id="{{ producto.id }}" onsubmit="return false;">
                                 {% csrf_token %}
                                 <button type="submit" class="btn btn-primary w-100" 
                                         {% if producto.agotado %}disabled{% endif %}>
+                                    <i class="fas fa-shopping-cart me-2"></i>
                                     {% if producto.agotado %}Agotado{% else %}Añadir al carrito{% endif %}
                                 </button>
                             </form>
@@ -341,4 +342,6 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 });
 </script>
+
+
 {% endblock %} 

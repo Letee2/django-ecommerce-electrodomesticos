@@ -5,24 +5,29 @@ from .models import Order, OrderItem
 from cart.models import CartItem
 from decimal import Decimal
 from django.contrib.admin.views.decorators import user_passes_test
+from django.views.decorators.http import require_POST
+from cart.cart import Cart
 
 @login_required
 def order_list(request):
-    orders = Order.objects.filter(user=request.user)
+    orders = Order.objects.filter(user=request.user).order_by('-created_at')
     return render(request, 'orders/order_list.html', {'orders': orders})
 
 @login_required
 def create_order(request, payment_method, shipping_method):
-    cart_items = CartItem.objects.filter(user=request.user)
+    if request.user.is_authenticated:
+        cart_items = CartItem.objects.filter(user=request.user)
+    else:
+        cart = get_or_create_cart(request)
+        cart_items = CartItem.objects.filter(cart=cart)
+
     if not cart_items.exists():
-        messages.error(request, 'Tu carrito está vacío')
-        return redirect('cart_detail')
+        return None
 
     # Verificar stock disponible
     for cart_item in cart_items:
         if cart_item.quantity > cart_item.product.stock:
-            messages.error(request, f'No hay suficiente stock de {cart_item.product.nombre}')
-            return redirect('cart_detail')
+            return None
 
     # Calcular costos
     shipping_cost = Decimal('4.99') if shipping_method == 'express' else Decimal('0')
@@ -34,7 +39,7 @@ def create_order(request, payment_method, shipping_method):
 
     # Crear el pedido
     order = Order.objects.create(
-        user=request.user,
+        user=request.user if request.user.is_authenticated else None,
         shipping_method=shipping_method,
         payment_method=payment_method,
         shipping_cost=shipping_cost,
@@ -49,15 +54,10 @@ def create_order(request, payment_method, shipping_method):
             quantity=cart_item.quantity,
             price=cart_item.product.precio_promocion if cart_item.product.en_promocion else cart_item.product.precio
         )
-        # Actualizar stock
         cart_item.product.stock -= cart_item.quantity
         cart_item.product.save()
 
-    # Limpiar el carrito
-    cart_items.delete()
-
-    messages.success(request, 'Pedido realizado correctamente')
-    return redirect('order_list')
+    return order
 
 @user_passes_test(lambda u: u.is_staff)
 def update_order_status(request, order_id):
@@ -73,4 +73,27 @@ def update_order_status(request, order_id):
             send_order_status_email(order)
             
             messages.success(request, 'Estado del pedido actualizado correctamente')
-    return redirect('admin_orders') 
+    return redirect('admin_orders')
+
+@login_required
+@require_POST
+def checkout_cod(request):
+    cart = Cart(request)
+    if cart:
+        order = Order.objects.create(
+            user=request.user,
+            payment_method='COD',
+            status='pending'
+        )
+        
+        for item in cart:
+            OrderItem.objects.create(
+                order=order,
+                product=item['product'],
+                price=item['price'],
+                quantity=item['quantity']
+            )
+            
+        cart.clear()
+        return redirect('order_success')
+    return redirect('cart:cart_detail') 

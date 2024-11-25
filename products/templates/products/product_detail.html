@@ -45,7 +45,7 @@
                     <h4>Descripción</h4>
                     <p>{{ product.descripcion }}</p>
                 </div>
-                <form action="{% url 'add_to_cart' product.id %}" method="POST">
+                <form action="{% url 'cart:add_to_cart' product.id %}" method="POST">
                     {% csrf_token %}
                     <button type="submit" class="btn btn-primary btn-lg scale-in">
                         <i class="fas fa-shopping-cart me-2"></i>Añadir al carrito

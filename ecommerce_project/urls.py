@@ -15,32 +15,27 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 from django.contrib import admin
-from django.urls import path
-from django.conf import settings
-from django.conf.urls.static import static
-from products.views import home, product_detail
-from users import views as user_views
-from cart import views as cart_views
 from django.urls import path, include
+from django.contrib.auth import views as auth_views
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('', home, name='home'),
-    path('registro/', user_views.registro, name='registro'),
-    path('login/', user_views.iniciar_sesion, name='login'),
-    path('logout/', user_views.cerrar_sesion, name='logout'),
     path('', include('products.urls')),
+    path('', include('users.urls')),
     path('cart/', include('cart.urls')),
-    path('cart/', cart_views.cart_detail, name='cart_detail'),
-    path('cart/add/<int:product_id>/', cart_views.add_to_cart, name='add_to_cart'),
-    path('checkout/cod/', cart_views.checkout_cod, name='checkout_cod'),
-    path('create-checkout-session/', cart_views.create_checkout_session, name='create_checkout_session'),
-    path('checkout/success/', cart_views.checkout_success, name='checkout_success'),
-    path('product/<int:product_id>/', product_detail, name='product_detail'),
-    path('profile/', user_views.profile, name='profile'),
-    path('', include('orders.urls')),
+    path('orders/', include('orders.urls')),
+    
+    # URLs para restablecimiento de contraseña
+    path('password-reset/', 
+         auth_views.PasswordResetView.as_view(template_name='users/password_reset.html'),
+         name='password_reset'),
+    path('password-reset/done/',
+         auth_views.PasswordResetDoneView.as_view(template_name='users/password_reset_done.html'),
+         name='password_reset_done'),
+    path('password-reset-confirm/<uidb64>/<token>/',
+         auth_views.PasswordResetConfirmView.as_view(template_name='users/password_reset_confirm.html'),
+         name='password_reset_confirm'),
+    path('password-reset-complete/',
+         auth_views.PasswordResetCompleteView.as_view(template_name='users/password_reset_complete.html'),
+         name='password_reset_complete'),
 ]
-
-if settings.DEBUG:
-    urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
-    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

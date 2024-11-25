@@ -5,6 +5,9 @@ from django.contrib import messages
 from django.db import transaction
 from .forms import LoginForm, RegistroForm, UserUpdateForm, ProfileUpdateForm
 from .models import UserProfile
+from django.http import JsonResponse
+from django.views.decorators.http import require_POST
+import json
 
 def registro(request):
     if request.user.is_authenticated:
@@ -71,3 +74,21 @@ def profile(request):
         'profile_form': profile_form
     }
     return render(request, 'users/profile.html', context)
+
+@login_required
+@require_POST
+def update_profile_ajax(request):
+    try:
+        data = json.loads(request.body)
+        profile = request.user.userprofile
+        
+        # Actualizar campos del perfil
+        profile.direccion_envio = data.get('direccion_envio', profile.direccion_envio)
+        profile.ciudad_envio = data.get('ciudad_envio', profile.ciudad_envio)
+        profile.codigo_postal_envio = data.get('codigo_postal_envio', profile.codigo_postal_envio)
+        profile.telefono = data.get('telefono', profile.telefono)
+        profile.save()
+        
+        return JsonResponse({'success': True})
+    except Exception as e:
+        return JsonResponse({'error': str(e)}, status=400)

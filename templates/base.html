@@ -32,44 +32,32 @@
                             <i class="fas fa-th-large me-2"></i>Catálogo
                         </a>
                     </li>
+                    <div class="nav-item me-3">
+                        <a class="nav-link position-relative" href="{% url 'cart:cart_detail' %}">
+                            <i class="fas fa-shopping-cart"></i>
+                            <span id="cart-counter" class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+                                {{ request|cart_count }}
+                            </span>
+                        </a>
+                    </div>
                     {% if user.is_authenticated %}
-                        <li class="nav-item">
-                            <a href="{% url 'cart_detail' %}" class="nav-link position-relative">
-                                <i class="fas fa-shopping-cart"></i>
-                                <span id="cart-counter" class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
-                                    {{ request.user|cart_count }}
-                                </span>
-                            </a>
-                        </li>
-                        <li class="nav-item dropdown">
-                            <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown">
-                                <i class="fas fa-user"></i> {{ user.username }}
+                        <div class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown">
+                                <i class="fas fa-user me-1"></i>{{ user.username }}
                             </a>
                             <ul class="dropdown-menu dropdown-menu-end">
-                                {% if user.is_staff %}
-                                    <li>
-                                        <a class="dropdown-item" href="{% url 'admin_panel' %}">
-                                            <i class="fas fa-cogs me-2"></i>Panel de Administración
-                                        </a>
-                                    </li>
-                                    <li><hr class="dropdown-divider"></li>
-                                {% endif %}
                                 <li><a class="dropdown-item" href="{% url 'profile' %}">Mi Perfil</a></li>
-                                <li><a class="dropdown-item" href="{% url 'order_list' %}">Mis Pedidos</a></li>
+                                <li><a class="dropdown-item" href="{% url 'orders:order_list' %}">Mis Pedidos</a></li>
+                                <li><hr class="dropdown-divider"></li>
                                 <li><a class="dropdown-item" href="{% url 'logout' %}">Cerrar Sesión</a></li>
                             </ul>
-                        </li>
+                        </div>
                     {% else %}
-                        <li class="nav-item">
+                        <div class="nav-item">
                             <a class="nav-link" href="{% url 'login' %}">
-                                <i class="fas fa-sign-in-alt"></i> Iniciar Sesión
+                                <i class="fas fa-user me-1"></i>Iniciar Sesión
                             </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="{% url 'registro' %}">
-                                <i class="fas fa-user-plus"></i> Registrarse
-                            </a>
-                        </li>
+                        </div>
                     {% endif %}
                 </ul>
             </div>
@@ -110,5 +98,15 @@
     {% block extra_js %}{% endblock %}
     <script src="{% static 'js/messages.js' %}"></script>
     <script src="{% static 'js/cart.js' %}"></script>
+    <div class="modal fade" id="cartModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-body text-center py-4">
+                    <i class="fas fa-check-circle text-success fa-3x mb-3"></i>
+                    <h5>Producto añadido al carrito correctamente</h5>
+                </div>
+            </div>
+        </div>
+    </div>
 </body>
 </html> 

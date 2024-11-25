@@ -154,5 +154,14 @@ EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True
-EMAIL_HOST_USER = 'gonzxkz@gmail.com'
-EMAIL_HOST_PASSWORD = 'llevalatarara'
+EMAIL_HOST_USER = 'gonxkz@gmail.com'
+EMAIL_HOST_PASSWORD = 'cfar sdzc hmju isip'
+DEFAULT_FROM_EMAIL = 'gonxkz@gmail.com'
+
+AUTHENTICATION_BACKENDS = [
+    'users.backends.EmailOrUsernameModelBackend',
+    'django.contrib.auth.backends.ModelBackend',
+]
+
+# Configuración del carrito
+CART_SESSION_ID = 'cart'
