@@ -32,15 +32,19 @@
                             <i class="fas fa-th-large me-2"></i>Catálogo
                         </a>
                     </li>
-                    {% if user.is_authenticated %}
-                        <li class="nav-item">
-                            <a href="{% url 'cart_detail' %}" class="nav-link position-relative">
-                                <i class="fas fa-shopping-cart"></i>
-                                <span id="cart-counter" class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+                    <li class="nav-item">
+                        <a href="{% url 'cart_detail' %}" class="nav-link position-relative">
+                            <i class="fas fa-shopping-cart"></i>
+                            <span id="cart-counter" class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+                                {% if user.is_authenticated %}
                                     {{ request.user|cart_count }}
-                                </span>
-                            </a>
-                        </li>
+                                {% else %}
+                                    {{ request.session.session_key|cart_count }}
+                                {% endif %}
+                            </span>
+                        </a>
+                    </li>
+                    {% if user.is_authenticated %}
                         <li class="nav-item dropdown">
                             <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown">
                                 <i class="fas fa-user"></i> {{ user.username }}
@@ -75,6 +79,7 @@
             </div>
         </div>
     </nav>
+    
 
     <main class="container py-4">
         {% block content %}{% endblock %}
