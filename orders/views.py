@@ -7,6 +7,7 @@ from decimal import Decimal
 from django.contrib.admin.views.decorators import user_passes_test
 from django.views.decorators.http import require_POST
 from cart.cart import Cart
+from .notifications import send_order_confirmation_email, send_order_status_email
 
 @login_required
 def order_list(request):
@@ -56,6 +57,11 @@ def create_order(request, payment_method, shipping_method):
         )
         cart_item.product.stock -= cart_item.quantity
         cart_item.product.save()
+
+    # Enviar correo de confirmación
+    if request.user.is_authenticated:
+        send_order_confirmation_email(order)
+        send_order_status_email(order)
 
     return order
 

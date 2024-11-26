@@ -58,8 +58,20 @@
                                 <h6>Información del Pedido</h6>
                                 <p class="mb-1"><strong>Fecha:</strong> {{ order.created_at|date:"d/m/Y H:i" }}</p>
                                 <p class="mb-1"><strong>Estado:</strong> {{ order.get_status_display }}</p>
-                                <p class="mb-1"><strong>Método de pago:</strong> {{ order.get_payment_method_display }}</p>
-                                <p class="mb-1"><strong>Método de envío:</strong> {{ order.get_shipping_method_display }}</p>
+                                <p class="mb-1"><strong>Método de pago:</strong> 
+                                    {% if order.payment_method == 'card' %}
+                                        Tarjeta de crédito/débito
+                                    {% else %}
+                                        Contrareembolso
+                                    {% endif %}
+                                </p>
+                                <p class="mb-1"><strong>Método de envío:</strong> 
+                                    {% if order.shipping_method == 'free' %}
+                                        Envío estándar (3-5 días)
+                                    {% else %}
+                                        Envío express (24-48h)
+                                    {% endif %}
+                                </p>
                             </div>
                             <div class="col-md-6 text-end">
                                 <h6>Resumen del Pedido</h6>

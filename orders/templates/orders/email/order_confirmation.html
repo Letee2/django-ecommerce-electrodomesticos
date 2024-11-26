@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        body { font-family: Arial, sans-serif; line-height: 1.6; }
+        .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+        .header { background-color: #28a745; color: white; padding: 20px; text-align: center; }
+        .content { padding: 20px; }
+        .product-list { margin: 20px 0; }
+        .product-item { border-bottom: 1px solid #eee; padding: 10px 0; }
+        .total { font-weight: bold; margin-top: 20px; }
+        .footer { text-align: center; padding: 20px; color: #666; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>¡Gracias por tu pedido!</h1>
+        </div>
+        <div class="content">
+            <p>Hola {{ order.user.first_name|default:order.user.username }},</p>
+            <p>Tu pedido #{{ order.id }} ha sido confirmado.</p>
+            
+            <h3>Detalles del pedido:</h3>
+            <div class="product-list">
+                {% for item in order.items.all %}
+                <div class="product-item">
+                    <p>{{ item.product.nombre }} x {{ item.quantity }}</p>
+                    <p>Precio unitario: €{{ item.price }}</p>
+                </div>
+                {% endfor %}
+            </div>
+
+            <div class="total">
+                <p>Subtotal: €{{ order.total|floatformat:2 }}</p>
+                <p>Gastos de envío: €{{ order.shipping_cost|floatformat:2 }}</p>
+                <p>Total: €{{ order.total|add:order.shipping_cost|floatformat:2 }}</p>
+            </div>
+
+            <h3>Información de envío:</h3>
+            <p>Método de envío: {{ order.get_shipping_method_display }}</p>
+            <p>Método de pago: {{ order.get_payment_method_display }}</p>
+            <p>Dirección: {{ order.direccion_envio }}</p>
+            <p>Ciudad: {{ order.ciudad_envio }}</p>
+            <p>Código Postal: {{ order.codigo_postal_envio }}</p>
+        </div>
+        <div class="footer">
+            <p>Gracias por confiar en nosotros</p>
+        </div>
+    </div>
+</body>
+</html> 
