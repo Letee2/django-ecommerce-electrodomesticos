@@ -18,7 +18,7 @@ class CartItem(models.Model):
     
     def get_total(self):
         return self.product.precio * self.quantity
-    
+
     def clean(self):
         if self.quantity > self.product.stock:
             raise ValidationError(f'Solo hay {self.product.stock} unidades disponibles')

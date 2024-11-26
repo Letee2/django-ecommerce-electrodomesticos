@@ -273,14 +273,24 @@ def create_checkout_session(request):
 
 
 def checkout_success(request):
-    # Limpiar el carrito después del pago exitoso
-    CartItem.objects.filter(user=request.user).delete()
+    if request.user.is_authenticated:
+        CartItem.objects.filter(user=request.user).delete()
+    else:
+        session_key = request.session.session_key
+        if session_key:
+            CartItem.objects.filter(session_key=session_key).delete()
+
     messages.success(request, '¡Pago realizado con éxito! Gracias por tu compra.')
     return redirect('home')
 
 def payment_success(request):
-    cart_items = CartItem.objects.filter(user=request.user)
-    cart_items.delete()
+    if request.user.is_authenticated:
+        CartItem.objects.filter(user=request.user).delete()
+    else:
+        session_key = request.session.session_key
+        if session_key:
+            CartItem.objects.filter(session_key=session_key).delete()
+
     messages.success(request, '¡Pago realizado con éxito! Gracias por tu compra.')
     return redirect('home')
 
@@ -322,7 +332,7 @@ def update_quantity(request, product_id):
         try:
             data = json.loads(request.body)
             new_quantity = int(data.get('quantity', 0))
-            
+
             if new_quantity < 1:
                 return JsonResponse({
                     'success': False,
@@ -355,7 +365,7 @@ def update_quantity(request, product_id):
                 item.quantity * (item.product.precio_promocion if item.product.en_promocion else item.product.precio)
                 for item in cart_items
             )
-            
+
             return JsonResponse({
                 'success': True,
                 'cart_count': cart_count,
