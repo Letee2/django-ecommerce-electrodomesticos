@@ -4,6 +4,7 @@ from django.urls import reverse
 from products.models import Product
 from .models import CartItem
 from decimal import Decimal
+import json
 
 class CartTestCase(TestCase):
     def setUp(self):
@@ -54,3 +55,48 @@ class CartTestCase(TestCase):
         self.assertRedirects(response, reverse('cart_detail'))  # Verifica la redirección
         self.assertContains(response, 'Tu carrito está vacío', html=True)  # Verifica el mensaje en la página redirigida
 
+    def test_update_quantity_valid(self):
+        """
+        Prueba para actualizar la cantidad de un producto a un valor válido.
+        """
+        cart_item = CartItem.objects.create(user=self.user, product=self.product, quantity=2)
+        response = self.client.post(
+            reverse('update_quantity', args=[self.product.id]),
+            data=json.dumps({'quantity': 5}),
+            content_type='application/json'
+        )
+        self.assertEqual(response.status_code, 200)
+        cart_item.refresh_from_db()
+        self.assertEqual(cart_item.quantity, 5)
+        self.assertIn('success', response.json())
+
+    def test_update_quantity_invalid_stock(self):
+        """
+        Prueba para intentar actualizar la cantidad más allá del stock disponible.
+        """
+        cart_item = CartItem.objects.create(user=self.user, product=self.product, quantity=2)
+        response = self.client.post(
+            reverse('update_quantity', args=[self.product.id]),
+            data=json.dumps({'quantity': 15}),
+            content_type='application/json'
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertIn('error', response.json())
+        self.assertEqual(response.json()['error'], f'Solo hay {self.product.stock} unidades disponibles')
+    def test_create_checkout_session_empty_cart(self):
+        """
+        Prueba para intentar crear una sesión de pago con el carrito vacío.
+        """
+        response = self.client.post(reverse('create_checkout_session'))
+        self.assertEqual(response.status_code, 200)
+        self.assertIn('error', response.json())
+        self.assertEqual(response.json()['error'], 'El carrito está vacío')
+
+    def test_create_checkout_session_valid(self):
+        """
+        Prueba para crear una sesión de pago con un carrito lleno.
+        """
+        CartItem.objects.create(user=self.user, product=self.product, quantity=2)
+        response = self.client.post(reverse('create_checkout_session'))
+        self.assertEqual(response.status_code, 200)
+        self.assertIn('id', response.json())
