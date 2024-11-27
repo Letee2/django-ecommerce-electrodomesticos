@@ -92,3 +92,23 @@ def update_profile_ajax(request):
         return JsonResponse({'success': True})
     except Exception as e:
         return JsonResponse({'error': str(e)}, status=400)
+
+@login_required
+def update_profile(request):
+    if request.method == 'POST':
+        user_form = UserUpdateForm(request.POST, instance=request.user)
+        profile_form = ProfileUpdateForm(request.POST, instance=request.user.userprofile)
+        
+        if user_form.is_valid() and profile_form.is_valid():
+            user_form.save()
+            profile = profile_form.save(commit=False)
+            
+            # Si misma_direccion está marcado, copiar datos de envío a facturación
+            if profile.misma_direccion:
+                profile.direccion_facturacion = profile.direccion_envio
+                profile.ciudad_facturacion = profile.ciudad_envio
+                profile.codigo_postal_facturacion = profile.codigo_postal_envio
+            
+            profile.save()
+            messages.success(request, 'Tu perfil ha sido actualizado.')
+            return redirect('profile')

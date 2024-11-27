@@ -54,7 +54,11 @@
                             <tbody>
                                 {% for item in items %}
                                 <tr>
-                                    <td>{{ item.product.nombre }}</td>
+                                    <td>
+                                        <a href="{% url 'product_detail' item.product.id %}" class="text-decoration-none text-dark">
+                                            {{ item.product.nombre }}
+                                        </a>
+                                    </td>
                                     <td class="text-center">{{ item.quantity }}</td>
                                     <td class="text-end">€{{ item.price|floatformat:2 }}</td>
                                     <td class="text-end">€{{ item.get_total|floatformat:2 }}</td>

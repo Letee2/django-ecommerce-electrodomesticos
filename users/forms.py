@@ -41,10 +41,23 @@ class UserUpdateForm(forms.ModelForm):
         }
 
 class ProfileUpdateForm(forms.ModelForm):
+    misma_direccion = forms.BooleanField(
+        label='Usar los mismos datos de envío para la facturación',
+        required=False,
+        initial=True,
+        widget=forms.CheckboxInput(attrs={
+            'class': 'form-check-input custom-checkbox'
+        })
+    )
+
     class Meta:
         model = UserProfile
-        fields = ['telefono', 'direccion_envio', 'ciudad_envio', 'codigo_postal_envio',
-                 'direccion_facturacion', 'ciudad_facturacion', 'codigo_postal_facturacion']
+        fields = [
+            'telefono', 
+            'direccion_envio', 'ciudad_envio', 'codigo_postal_envio',
+            'direccion_facturacion', 'ciudad_facturacion', 'codigo_postal_facturacion',
+            'misma_direccion'
+        ]
         widgets = {
             'telefono': forms.TextInput(attrs={'class': 'form-control'}),
             'direccion_envio': forms.TextInput(attrs={'class': 'form-control'}),
