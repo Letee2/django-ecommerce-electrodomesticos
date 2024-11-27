@@ -1,0 +1,99 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Pago Exitoso - E-Commerce{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+    <div class="text-center mb-4">
+        <i class="fas fa-check-circle text-success fa-5x mb-3"></i>
+        <h2>¡Pago Realizado con Éxito!</h2>
+        <p class="lead">Tu pedido #{{ order.id }} ha sido procesado correctamente.</p>
+    </div>
+
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <div class="row mb-4">
+                        <div class="col-md-6">
+                            <h5 class="card-title">Información del Pedido</h5>
+                            <p class="mb-1"><strong>Fecha:</strong> {{ order.created_at|date:"d/m/Y H:i" }}</p>
+                            <p class="mb-1"><strong>Estado:</strong> {{ order.get_status_display }}</p>
+                            <p class="mb-1"><strong>Método de pago:</strong> Tarjeta de crédito/débito</p>
+                            <p class="mb-1"><strong>Método de envío:</strong> 
+                                {% if order.shipping_method == 'free' %}
+                                    Envío estándar (3-5 días)
+                                {% else %}
+                                    Envío express (24-48h)
+                                {% endif %}
+                            </p>
+                        </div>
+                        <div class="col-md-6">
+                            <h5 class="card-title">Dirección de Envío</h5>
+                            <p class="mb-1"><strong>Nombre:</strong> {{ order.nombre_envio }}</p>
+                            <p class="mb-1"><strong>Email:</strong> {{ order.email_envio }}</p>
+                            <p class="mb-1"><strong>Dirección:</strong> {{ order.direccion_envio }}</p>
+                            <p class="mb-1"><strong>Ciudad:</strong> {{ order.ciudad_envio }}</p>
+                            <p class="mb-1"><strong>Código Postal:</strong> {{ order.codigo_postal_envio }}</p>
+                            <p class="mb-1"><strong>Teléfono:</strong> {{ order.telefono_envio }}</p>
+                        </div>
+                    </div>
+
+                    <h5 class="card-title">Productos</h5>
+                    <div class="table-responsive mb-4">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Producto</th>
+                                    <th class="text-center">Cantidad</th>
+                                    <th class="text-end">Precio</th>
+                                    <th class="text-end">Total</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for item in items %}
+                                <tr>
+                                    <td>{{ item.product.nombre }}</td>
+                                    <td class="text-center">{{ item.quantity }}</td>
+                                    <td class="text-end">€{{ item.price|floatformat:2 }}</td>
+                                    <td class="text-end">€{{ item.get_total|floatformat:2 }}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6 offset-md-6">
+                            <table class="table table-borderless">
+                                <tr>
+                                    <td>Subtotal:</td>
+                                    <td class="text-end">€{{ order.total|floatformat:2 }}</td>
+                                </tr>
+                                <tr>
+                                    <td>Gastos de envío:</td>
+                                    <td class="text-end">€{{ order.shipping_cost|floatformat:2 }}</td>
+                                </tr>
+                                <tr>
+                                    <th>Total:</th>
+                                    <th class="text-end">€{{ order.total|add:order.shipping_cost|floatformat:2 }}</th>
+                                </tr>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="text-center mt-4">
+                <a href="{% url 'orders:order_list' %}" class="btn btn-primary me-2">
+                    <i class="fas fa-list me-2"></i>Ver mis pedidos
+                </a>
+                <a href="{% url 'home' %}" class="btn btn-secondary">
+                    <i class="fas fa-home me-2"></i>Volver a la tienda
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

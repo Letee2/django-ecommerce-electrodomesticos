@@ -8,6 +8,7 @@ from django.db import transaction
 from .models import CartItem, Cart
 from products.models import Product
 from users.models import UserProfile
+from orders.models import Order, OrderItem
 from orders.views import create_order
 import stripe
 from django.conf import settings
@@ -133,30 +134,49 @@ def create_checkout_session(request):
         try:
             data = json.loads(request.body)
             
+            # Obtener items del carrito primero
             if request.user.is_authenticated:
+                cart_items = CartItem.objects.filter(user=request.user)
                 profile = request.user.userprofile
-                if not all([profile.direccion_envio, profile.ciudad_envio, 
-                           profile.codigo_postal_envio, profile.telefono]):
+                # Verificar si faltan datos
+                if not all([
+                    profile.direccion_envio,
+                    profile.ciudad_envio,
+                    profile.codigo_postal_envio,
+                    profile.telefono,
+                    request.user.first_name,
+                    request.user.email
+                ]):
                     return JsonResponse({
                         'incomplete_profile': True,
-                        'error': 'Por favor, completa todos los datos de envío necesarios'
+                        'error': 'Por favor, completa todos los datos necesarios'
                     })
                 
-                # Usar datos del perfil
-                data.update({
-                    'nombre': request.user.get_full_name() or request.user.username,
-                    'email': request.user.email,
-                    'direccion_envio': profile.direccion_envio,
-                    'ciudad_envio': profile.ciudad_envio,
-                    'codigo_postal_envio': profile.codigo_postal_envio,
-                    'telefono': profile.telefono  # Cambiado de telefono_envio a telefono
-                })
-            else:
-                # Validar datos para usuarios no autenticados
-                required_fields = ['nombre', 'email', 'direccion_envio', 'ciudad_envio', 'codigo_postal_envio', 'telefono', 'password']
-                for field in required_fields:
-                    if not data.get(field):
-                        return JsonResponse({'error': f'El campo {field} es obligatorio'})
+                # Crear el pedido con los datos completos
+                order = Order.objects.create(
+                    user=request.user,
+                    payment_method='card',
+                    status='pending',
+                    shipping_method=data.get('shipping_method', 'free'),
+                    nombre_envio=request.user.get_full_name(),
+                    direccion_envio=profile.direccion_envio,
+                    ciudad_envio=profile.ciudad_envio,
+                    codigo_postal_envio=profile.codigo_postal_envio,
+                    telefono_envio=profile.telefono,
+                    email_envio=request.user.email,
+                    shipping_cost=Decimal('4.99') if data.get('shipping_method') == 'express' else Decimal('0'),
+                    total=sum(item.quantity * (item.product.precio_promocion if item.product.en_promocion else item.product.precio)
+                             for item in cart_items)
+                )
+
+                # Crear los items del pedido
+                for cart_item in cart_items:
+                    OrderItem.objects.create(
+                        order=order,
+                        product=cart_item.product,
+                        quantity=cart_item.quantity,
+                        price=cart_item.product.precio_promocion if cart_item.product.en_promocion else cart_item.product.precio
+                    )
 
             # Si el usuario no está autenticado, creamos una cuenta
             if not request.user.is_authenticated:
@@ -207,14 +227,24 @@ def create_checkout_session(request):
                 return JsonResponse({'error': 'El carrito está vacío'})
 
             # Guardar datos de envío en sesión
-            shipping_data = {
-                'nombre': data['nombre'],
-                'email': data['email'],
-                'direccion': data['direccion_envio'],
-                'ciudad': data['ciudad_envio'],
-                'codigo_postal': data['codigo_postal_envio'],
-                'telefono': data['telefono']
-            }
+            if request.user.is_authenticated:
+                shipping_data = {
+                    'nombre': request.user.get_full_name(),
+                    'email': request.user.email,
+                    'direccion': profile.direccion_envio,
+                    'ciudad': profile.ciudad_envio,
+                    'codigo_postal': profile.codigo_postal_envio,
+                    'telefono': profile.telefono
+                }
+            else:
+                shipping_data = {
+                    'nombre': data['nombre'],
+                    'email': data['email'],
+                    'direccion': data['direccion_envio'],
+                    'ciudad': data['ciudad_envio'],
+                    'codigo_postal': data['codigo_postal_envio'],
+                    'telefono': data['telefono']
+                }
             request.session['shipping_data'] = shipping_data
 
             # Calcular costos de envío
@@ -259,7 +289,7 @@ def create_checkout_session(request):
                     payment_method_types=['card'],
                     line_items=line_items,
                     mode='payment',
-                    success_url=request.build_absolute_uri('/payment/success/'),
+                    success_url=request.build_absolute_uri(reverse('orders:payment_success')),
                     cancel_url=request.build_absolute_uri('/cart/'),
                 )
 
@@ -406,3 +436,15 @@ def update_cart_item(request, product_id):
         except Exception as e:
             return JsonResponse({'success': False, 'error': str(e)})
     return JsonResponse({'success': False})
+
+def verify_user_data(user):
+    profile = user.userprofile
+    required_fields = [
+        profile.direccion_envio,
+        profile.ciudad_envio,
+        profile.codigo_postal_envio,
+        profile.telefono,
+        user.first_name,
+        user.email
+    ]
+    return all(required_fields)

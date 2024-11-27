@@ -15,6 +15,7 @@ def load_initial_data():
         
         # Si la conexión es exitosa, carga los fixtures
         fixtures = [
+            'admin_users',
             'initial_categories',
             'initial_products',
         ]

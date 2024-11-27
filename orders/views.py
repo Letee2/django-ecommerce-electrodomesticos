@@ -8,6 +8,7 @@ from django.contrib.admin.views.decorators import user_passes_test
 from django.views.decorators.http import require_POST
 from cart.cart import Cart
 from .notifications import send_order_confirmation_email, send_order_status_email
+from django.http import JsonResponse
 
 @login_required
 def order_list(request):
@@ -102,4 +103,46 @@ def checkout_cod(request):
             
         cart.clear()
         return redirect('order_success')
-    return redirect('cart:cart_detail') 
+    return redirect('cart:cart_detail')
+
+@login_required
+def payment_success(request):
+    try:
+        # Obtener el último pedido del usuario
+        order = Order.objects.filter(user=request.user).latest('created_at')
+        # Actualizar el estado a pagado
+        order.status = 'paid'
+        order.save()
+        
+        # Limpiar el carrito
+        CartItem.objects.filter(user=request.user).delete()
+        
+        return render(request, 'orders/payment_success.html', {
+            'order': order,
+            'items': order.items.all()
+        })
+    except Order.DoesNotExist:
+        messages.error(request, 'No se encontró el pedido')
+        return redirect('home')
+
+@login_required
+def get_last_order(request):
+    try:
+        order = Order.objects.filter(user=request.user).latest('created_at')
+        order.status = 'paid'
+        order.save()
+        
+        products = [{
+            'name': item.product.nombre,
+            'quantity': item.quantity,
+            'price': float(item.price * item.quantity)
+        } for item in order.items.all()]
+        
+        return JsonResponse({
+            'success': True,
+            'order_id': order.id,
+            'total': float(order.total),
+            'products': products
+        })
+    except Order.DoesNotExist:
+        return JsonResponse({'success': False, 'error': 'No se encontró el pedido'}) 
