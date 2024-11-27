@@ -18,6 +18,7 @@ def registro(request):
         if form.is_valid():
             with transaction.atomic():
                 user = form.save()
+                user.backend = 'users.backends.EmailOrUsernameModelBackend'
                 login(request, user)
                 messages.success(request, f'¡Bienvenido {user.username}! Tu cuenta ha sido creada exitosamente.')
                 return redirect('home')

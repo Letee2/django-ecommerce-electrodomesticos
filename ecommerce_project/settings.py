@@ -37,6 +37,8 @@ SECRET_KEY = env('DJANGO_SECRET_KEY')
 DEBUG = env('DEBUG')
 
 ALLOWED_HOSTS = ['*']  # Configura esto apropiadamente en producción
+CSRF_TRUSTED_ORIGINS = ['https://localhost:8888',
+                        'https://localhost:8000']
 
 # Database
 DATABASES = {
