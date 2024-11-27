@@ -13,24 +13,35 @@ https://docs.djangoproject.com/en/4.2/ref/settings/
 from pathlib import Path
 import os
 from dotenv import load_dotenv
+import environ
 
 load_dotenv()
+
+# Inicializar environ
+env = environ.Env(
+    DEBUG=(bool, False),
+    DJANGO_SECRET_KEY=(str, 'your-default-secret-key-here'),
+    DATABASE_URL=(str, 'postgresql://postgres:postgres@db:5432/ecommerce'),
+)
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-
-# Quick-start development settings - unsuitable for production
-# See https://docs.djangoproject.com/en/4.2/howto/deployment/checklist/
+# Leer el archivo .env si existe
+environ.Env.read_env(os.path.join(BASE_DIR, '.env'))
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-l_p#2vamt)t45jt&(85-z@s6qipc&+vmd-ua1j+^_7x)!5%*at'
+SECRET_KEY = env('DJANGO_SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = env('DEBUG')
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['*']  # Configura esto apropiadamente en producción
 
+# Database
+DATABASES = {
+    'default': env.db(),
+}
 
 # Application definition
 
@@ -78,17 +89,6 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = 'ecommerce_project.wsgi.application'
-
-
-# Database
-# https://docs.djangoproject.com/en/4.2/ref/settings/#databases
-
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
-    }
-}
 
 
 # Password validation
