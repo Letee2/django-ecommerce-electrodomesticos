@@ -9,19 +9,35 @@ class Cart:
         if not cart:
             cart = self.session[settings.CART_SESSION_ID] = {}
         self.cart = cart
+        
+        # Calcular y guardar el contador total
+        self._save_cart_count()
+
+    def _save_cart_count(self):
+        total_count = 0
+        for item in self.cart.values():
+            total_count += item.get('quantity', 0)
+        self.session['cart_count'] = total_count
+        self.session.modified = True
 
     def add(self, product, quantity=1, override_quantity=False):
         product_id = str(product.id)
         if product_id not in self.cart:
-            self.cart[product_id] = {'quantity': 0, 'price': str(product.precio)}
+            self.cart[product_id] = {
+                'quantity': 0,
+                'price': str(product.precio_promocion if product.en_promocion else product.precio)
+            }
         
         if override_quantity:
             self.cart[product_id]['quantity'] = quantity
         else:
             self.cart[product_id]['quantity'] += quantity
+        
         self.save()
 
     def save(self):
+        self.session[settings.CART_SESSION_ID] = self.cart
+        self._save_cart_count()
         self.session.modified = True
 
     def remove(self, product):
@@ -44,11 +60,13 @@ class Cart:
             yield item
 
     def __len__(self):
-        return sum(item['quantity'] for item in self.cart.values())
+        return self.session.get('cart_count', 0)
 
-    def get_total_price(self):
+    def get_total(self):
         return sum(Decimal(item['price']) * item['quantity'] for item in self.cart.values())
 
     def clear(self):
         del self.session[settings.CART_SESSION_ID]
-        self.save() 
+        if 'cart_count' in self.session:
+            del self.session['cart_count']
+        self.session.modified = True

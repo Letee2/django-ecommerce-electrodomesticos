@@ -108,11 +108,23 @@ def checkout_cod(request):
 @login_required
 def payment_success(request):
     try:
-        # Obtener el último pedido del usuario
         order = Order.objects.filter(user=request.user).latest('created_at')
-        # Actualizar el estado a pagado
+        
+        # Verificar stock disponible
+        for item in order.items.all():
+            if item.quantity > item.product.stock:
+                messages.error(request, f'No hay suficiente stock disponible para {item.product.nombre}')
+                return redirect('cart:cart_detail')
+        
+        # Si hay suficiente stock, procedemos con la actualización
         order.status = 'paid'
         order.save()
+        
+        # Actualizar el stock de los productos
+        for item in order.items.all():
+            product = item.product
+            product.stock -= item.quantity
+            product.save()
         
         # Limpiar el carrito
         CartItem.objects.filter(user=request.user).delete()
@@ -131,6 +143,12 @@ def get_last_order(request):
         order = Order.objects.filter(user=request.user).latest('created_at')
         order.status = 'paid'
         order.save()
+        
+        # Actualizar el stock de los productos
+        for item in order.items.all():
+            product = item.product
+            product.stock -= item.quantity
+            product.save()
         
         products = [{
             'name': item.product.nombre,
